@@ -19,7 +19,7 @@
 
 
 
-<title>How to run RTEMS on POK - Youren Shen</title>
+<title>How to make a presentation for your paper as a non-native English speaker - Youren Shen</title>
 
 
 
@@ -29,22 +29,22 @@
 
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Youren Shen">
-<meta property="og:title" content="How to run RTEMS on POK">
+<meta property="og:title" content="How to make a presentation for your paper as a non-native English speaker">
 
 
-  <link rel="canonical" href="http://yourenis.me/how-to-run-rtems-on-pok/">
-  <meta property="og:url" content="http://yourenis.me/how-to-run-rtems-on-pok/">
+  <link rel="canonical" href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/">
+  <meta property="og:url" content="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/">
 
 
 
-  <meta property="og:description" content="#####First: Build your POK example.1. get pok source code from my github.2. change the directory to top of POK and export POK_PATH=$PWD.3. run make configure.4. cd to example and mkdir yourexample directory.5. build a new example. If you got any question, find solution from pok-devel mail list or the document.">
+  <meta property="og:description" content="This post is all about my personal experience. Take it critically with your own perspective.">
 
 
 
   <meta name="twitter:site" content="@shenyouren">
-  <meta name="twitter:title" content="How to run RTEMS on POK">
-  <meta name="twitter:description" content="#####First: Build your POK example.1. get pok source code from my github.2. change the directory to top of POK and export POK_PATH=$PWD.3. run make configure.4. cd to example and mkdir yourexample directory.5. build a new example. If you got any question, find solution from pok-devel mail list or the document.">
-  <meta name="twitter:url" content="http://yourenis.me/how-to-run-rtems-on-pok/">
+  <meta name="twitter:title" content="How to make a presentation for your paper as a non-native English speaker">
+  <meta name="twitter:description" content="This post is all about my personal experience. Take it critically with your own perspective.">
+  <meta name="twitter:url" content="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/">
 
   
     <meta name="twitter:card" content="summary">
@@ -64,7 +64,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2014-03-15T00:00:00+08:00">
+  <meta property="article:published_time" content="2018-09-02T15:45:53+08:00">
 
 
 
@@ -221,22 +221,22 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="How to run RTEMS on POK">
-    <meta itemprop="description" content="#####First: Build your POK example.1. get pok source code from my github.2. change the directory to top of POK and export POK_PATH=$PWD.3. run make configure.4. cd to example and mkdir yourexample directory.5. build a new example. If you got any question, find solution from pok-devel mail list or the document.">
-    <meta itemprop="datePublished" content="March 15, 2014">
+    <meta itemprop="headline" content="How to make a presentation for your paper as a non-native English speaker">
+    <meta itemprop="description" content="This post is all about my personal experience. Take it critically with your own perspective.">
+    <meta itemprop="datePublished" content="September 02, 2018">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 class="page__title" itemprop="headline">How to run RTEMS on POK
+          <h1 class="page__title" itemprop="headline">How to make a presentation for your paper as a non-native English speaker
 </h1>
           
             <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
 
 
   
-	  1 minute read
+	  2 minute read
 	
 </p>
           
@@ -244,77 +244,53 @@
       
 
       <section class="page__content" itemprop="text">
-        <p>#####First: Build your POK example.
-1. get pok source code from my <a href="https://github.com/HuaiYuSched/rtems_GSoC/tree/master/pok">github</a>.
-2. change the directory to top of POK and export POK_PATH=$PWD.
-3. run make configure.
-4. cd to example and mkdir yourexample directory.
-5. build a new example. If you got any question, find solution from pok-devel mail list or the <a href="http://download.tuxfamily.org/pok/snapshots/pok-userguide-current.pdf">document</a>.</p>
+        <p>This post is all about my personal experience. Take it critically with your own perspective.</p>
 
-<p>Here is the snapshot:
-<img src="http://yourenis.me/images/myexample.png" alt="" /></p>
-
-<p>#####Build RTEMS guest in POK
-1. change directory to example/rtems-guest
-2. make (will fail because undefined C_dispatch_isr)
-3. build RTEMS. See next section.
-4. copy the hello.exe sample to POK_PATH/example/rtems-guest/generated-code/cpu/part1/ (mv hello.exe part1.elf).
-5. cd POK_PATH/examples/rtems-guest/generated-code/cpu/ and make all.
-6. cd POK_PATH/examples/rtesm-guest/ and make run.</p>
-
-<p>#####How to build RTEMS?
-How to build RTEMS with –enable-paravirt and –enable-rtemsbsp=virtualpok?</p>
+<p>If you publish a paper on a conference, then you have to make a presentation in English to introduce your work. This presentation is about how others feels about your work and how others feels about you in your scientific community.<br />
+So it’s very important to make a good preparation for your presentation. However, for our non-native English speaker, making a long presentation is never an easy task. I share some of my experience about preparing presentation for your paper, for others but also for my amnesia.</p>
 
 <ol>
-  <li>
-    <p>get the source code from <a href="https://github.com/RTEMS/rtems.git">git</a> <br />
-git clone https://github.com/RTEMS/rtems.git</p>
-  </li>
-  <li>
-    <p>get the patchs from my <a href="https://github.com/HuaiYuSched/rtems_GSoC">github</a>.(The patchs is written by Philipp Eppelt)<br />
-<a href="https://github.com/HuaiYuSched/rtems_GSoC/blob/master/virtualpok-BSP.patch">virtualpok-BSP.patch</a> <br />
-<a href="https://github.com/HuaiYuSched/rtems_GSoC/blob/master/rtems_paravirt_cpu_i386.patch">rtems_paravirt_cpu_i386.patch</a></p>
-  </li>
-  <li>
-    <p>patch the patchs. <br />
-cd $RTEMS <br />
-cat virtualpok-BSP.patch | patch -p1
-cat rtema_paravirt_cpu_i386.patch | patch -p1</p>
-  </li>
-  <li>
-    <p>change the $RTEMS/c/src/lib/libbsp/i386/virtualpok/Makefile.am <br />
-There are two kinds of  rename in linux, one is C version, the other is perl version. Check which version the rename is in you system. <br />
-man rename, the C version will display “Linux Programmer’s Manual RENAME(1)” while the Perl version will display “Perl Programmers Reference Guide RENAME(1)” <br />
-If you are perl version, you can skip this step, otherwise, you have to change the Makefile.am
-Change the statement “rename .lo .o <code class="highlighter-rouge">cat libpart.list</code>” to “cat libpart.list | rename ‘s/.lo/.o/g’”</p>
-  </li>
-  <li>
-    <p>cp the virtualizationlayercpu.h from $POK_PATH/example/rtems-guest/ to $RTEMS/c/src/lib/libbsp/i386/virtualpok/include.</p>
-  </li>
-  <li>
-    <p>cp the libpart.a from $POK_PATH/examples/rtems-guest/generated-code/cpu/part1 to $RTEMS/c/src/lib/libbsp/i386/virtualpok/.</p>
-  </li>
-  <li>
-    <p>$RTEMS/bootstrap -p</p>
-  </li>
-  <li>
-    <p>change the include of virtualizationlayercpu.h in virtualpok/clock/ckinit.c from #include&lt;rtems/score/virtualizationlayercpu.h&gt; to #include<virtualizationlayercpu.h></virtualizationlayercpu.h></p>
-  </li>
-  <li>
-    <p>Build RTEMS. <br />
-the configure line should looks like this.
-–target=i386-rtems4.11 –enable-rtemsbsp=virtualpok –enable-paravirt
-–disable-cxx –disable-networking –disable-posix
-–enable-maintainter-mode –enable-tests –disable-multiprocessing
-USE_COM1_AS_CONSOLE=1 BSP_PRESS_KEY_FOR_RESET=0 <br />
-when build the RTEMS, it’s prossible to have some wrong occures due to the changes in RTEMS kernel, fix it by replace the file in <a href="https://github.com/phipse/rtems">Phipse’s Github</a></p>
-  </li>
+  <li>Pick up some most important points, creative opinion in your paper that you mostly want to share in your presentation. (two hours)</li>
 </ol>
 
-<p>#####After build the RTEMS on POK.
-Here is the snapshot of result:</p>
+<p>Those points might be some story in your paper, some mechanism you are proud of, or even some new founding in your experiments. Those points are what you must share to others.</p>
 
-<p><img src="http://yourenis.me/images/RTEMSonPOK.png" alt="" /></p>
+<ol>
+  <li>Give a logic of your presentation. (Half day)</li>
+</ol>
+
+<p>The logic in your presentation is about the organization of your slides. Imaging all audience know nothing about your work even background about your work, how can you make them feel interest, and, how to introduce your work clearly?</p>
+
+<p>So, in this stage, you think about a logic, which including what’s the problem you want to solve, why you are doing this work, why it’s useful and how difficult it is, what’s your solution for the difficulties, and most important, the connections between them.</p>
+
+<p>This logic must concatenate all points from the first stage (Because they are the most thing you want to present, right?). After this stage, you already have a framework of your presentation. In your logic, there should be no flaw like use concepts before its definition or anything suddenly jumped out. All slides go smoothly.</p>
+
+<p>Also, you need to consider about times you spend. Usually a talk is comprised of a story, previous works and your own contribution. Remember emphasize your work rather than talk about background too much.</p>
+
+<ol>
+  <li>Design your presentation frame by frame with a notebook. (one to two days)</li>
+</ol>
+
+<p>With a logic, now you can design your slides. In this stage, paints the slides frame by frame on a notebook.</p>
+
+<p>Inside one frame, you have to design a detailed layout including text and pictures you want to put in this frame. What’s the content on this page and can you illustrate it with a picture? If so, what’s this picture would looks like.</p>
+
+<p>Between the frame, think about conjunctive words, how to move to next frame after this frame, are those two frames relative? If not, why just put it to other places.</p>
+
+<p>Since author is a non-native English speaker, the content in the frame need to shape and polish.</p>
+
+<ol>
+  <li>Write the script and read it again and again.(one to two days)</li>
+</ol>
+
+<p>After stage three, now you have a detail slide. However, this usually is not the final version. You should write a script about your presentation and practice it again and again. Once you find any problem of your slide or script like logic problem or text in slide is not accurate enough, fix it. You can always improve your presentation, the way to improve it is practice it again and again.</p>
+
+<ol>
+  <li>At last, write your slides with power point or keynote. Then practice it with time control. (until your presentation)</li>
+</ol>
+
+<p>At this stage, you might still want to improve your work. But remember, don’t update your slides in logic if necessary. This will waste your practice time you spend.</p>
+
 
         
       </section>
@@ -327,7 +303,7 @@ Here is the snapshot of result:</p>
 
 
         
-          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-03-15T00:00:00+08:00">March 15, 2014</time></p>
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-09-02T15:45:53+08:00">September 02, 2018</time></p>
         
       </footer>
 
@@ -336,13 +312,13 @@ Here is the snapshot of result:</p>
 <section class="page__share">
   
 
-  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/how-to-run-rtems-on-pok/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/how-to-run-rtems-on-pok/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://plus.google.com/share?url=http://yourenis.me/how-to-run-rtems-on-pok/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+  <a href="https://plus.google.com/share?url=http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/how-to-run-rtems-on-pok/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
       
@@ -350,11 +326,11 @@ Here is the snapshot of result:</p>
 
   <nav class="pagination">
     
-      <a href="#" class="pagination--pager disabled">Previous</a>
+      <a href="http://yourenis.me/dynamic-libary-debug-record/" class="pagination--pager" title="Dynamic Library Debug Record
+">Previous</a>
     
     
-      <a href="http://yourenis.me/pok-startup-flow-and-interrupt-system/" class="pagination--pager" title="POK startup flow and interrupt system
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
@@ -377,36 +353,6 @@ Here is the snapshot of result:</p>
     <div class="page__related">
       
       <div class="grid__wrapper">
-        
-          
-
-
-
-
-
-<div class="grid__item">
-  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" rel="permalink">How to make a presentation for your paper as a non-native English speaker
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
-
-
-  
-	  2 minute read
-	
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">This post is all about my personal experience. Take it critically with your own perspective.
-
-</p>
-  </article>
-</div>
         
           
 
@@ -457,7 +403,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
 
 
   
-	  1 minute read
+	  2 minute read
 	
 </p>
     
@@ -493,6 +439,43 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
 
 
 </p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
   </article>
 </div>
         
