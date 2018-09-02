@@ -1,0 +1,646 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>The interrupt register function for vCPU - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="The interrupt register function for vCPU">
+
+
+  <link rel="canonical" href="http://yourenis.me/the-interrupt-register-function-for-vcpu/">
+  <meta property="og:url" content="http://yourenis.me/the-interrupt-register-function-for-vcpu/">
+
+
+
+  <meta property="og:description" content="Last series of weeks I developed an interrupt register function in vCPU. This implementation which contains three parts in POK kernel. 1. adapt the vCPU structure to be able to mask the interrupt register and handling.2. Add register function in hypercall system.3. Add do_IRQ function in POK interrupt handler, this function will check the IRQ and vCPU structure, to see whether the interrupt is register in corresponding vCPU. If yes, then mask and add the counter in vCPU structure.">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="The interrupt register function for vCPU">
+  <meta name="twitter:description" content="Last series of weeks I developed an interrupt register function in vCPU. This implementation which contains three parts in POK kernel. 1. adapt the vCPU structure to be able to mask the interrupt register and handling.2. Add register function in hypercall system.3. Add do_IRQ function in POK interrupt handler, this function will check the IRQ and vCPU structure, to see whether the interrupt is register in corresponding vCPU. If yes, then mask and add the counter in vCPU structure.">
+  <meta name="twitter:url" content="http://yourenis.me/the-interrupt-register-function-for-vcpu/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-07-29T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="The interrupt register function for vCPU">
+    <meta itemprop="description" content="Last series of weeks I developed an interrupt register function in vCPU. This implementation which contains three parts in POK kernel. 1. adapt the vCPU structure to be able to mask the interrupt register and handling.2. Add register function in hypercall system.3. Add do_IRQ function in POK interrupt handler, this function will check the IRQ and vCPU structure, to see whether the interrupt is register in corresponding vCPU. If yes, then mask and add the counter in vCPU structure.">
+    <meta itemprop="datePublished" content="July 29, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">The interrupt register function for vCPU
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <p>Last series of weeks I developed an interrupt register function in vCPU. This implementation which contains three parts in POK kernel. <br />
+1. adapt the vCPU structure to be able to mask the interrupt register and handling.<br />
+2. Add register function in hypercall system.<br />
+3. Add do_IRQ function in POK interrupt handler, this function will check the IRQ and vCPU structure, to see whether the interrupt is register in corresponding vCPU. If yes, then mask and add the counter in vCPU structure.</p>
+
+<p>So let’s see the code in details:<br />
+####The structure of vCPU</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">arch_vcpu</span>
+<span class="p">{</span>
+   <span class="p">......</span>
+
+   <span class="cm">/*
+    * This is a interrupt frame, the interrupt information will be store in this struct;
+    */</span>
+   <span class="k">struct</span> <span class="n">irq_desc</span> <span class="n">irqdesc</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+
+<span class="p">}</span><span class="n">arch_vcpu_t</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">irq_desc</span>
+<span class="p">{</span>
+   <span class="kt">unsigned</span> <span class="n">vector</span><span class="p">;</span>
+   <span class="kt">uint8_t</span> <span class="n">counter</span><span class="p">;</span>
+<span class="p">}</span><span class="n">irq_desc_t</span><span class="p">;</span></code></pre></figure>
+
+<p>As we can see, the arch_vcpu include an array of irq_desc_t, this structure is only for vCPU interrupt handling. There is no relation between this structure and POK physical interrupt handler. Next section when it comes register function, I will explain the usage in more details.</p>
+
+<p>####The new Hypercall
+New hypercall number</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c">   <span class="n">POK_HYPERCALL_IRQ_REGISTER_VCPU</span> 		   <span class="o">=</span>  <span class="mi">30</span><span class="p">,</span>
+   <span class="n">POK_HYPERCALL_IRQ_UNREGISTER_VCPU</span>       <span class="o">=</span>  <span class="mi">31</span><span class="p">,</span></code></pre></figure>
+
+<p>New case in pok_core_hypercall</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_core_hypercall</span> <span class="p">(</span><span class="k">const</span> <span class="n">pok_hypercall_id_t</span>       <span class="n">hypercall_id</span><span class="p">,</span>
+                            <span class="k">const</span> <span class="n">pok_hypercall_args_t</span><span class="o">*</span>    <span class="n">args</span><span class="p">,</span>
+                            <span class="k">const</span> <span class="n">pok_hypercall_info_t</span><span class="o">*</span>    <span class="n">infos</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">....</span>
+  <span class="cm">/* register interrupt delivery to vcpu */</span>
+   <span class="k">case</span> <span class="n">POK_HYPERCALL_IRQ_REGISTER_VCPU</span><span class="p">:</span>
+       <span class="k">return</span> <span class="n">pok_bsp_irq_register_vcpu</span><span class="p">(</span><span class="n">args</span><span class="o">-&gt;</span><span class="n">arg1</span><span class="p">,(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">uint8_t</span><span class="p">))</span> <span class="p">((</span><span class="n">args</span><span class="o">-&gt;</span><span class="n">arg2</span> <span class="o">+</span> <span class="n">infos</span><span class="o">-&gt;</span><span class="n">base_addr</span><span class="p">)));</span>
+       <span class="k">break</span><span class="p">;</span>
+   <span class="cm">/* unregister interrupt delivery to vcpu */</span>
+   <span class="k">case</span> <span class="n">POK_HYPERCALL_IRQ_UNREGISTER_VCPU</span><span class="p">:</span>
+       <span class="k">return</span> <span class="n">pok_bsp_irq_unregister_vcpu</span><span class="p">(</span><span class="n">args</span><span class="o">-&gt;</span><span class="n">arg1</span><span class="p">);</span>
+       <span class="k">break</span><span class="p">;</span>
+<span class="p">....</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>The implementation of corresponding function
+pok_bsp_irq_register_vcpu function in pok/kernel/arch/x86/x86-qemu-vmm/bsp.c</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/*
+ * Register irq in vCPU.
+ * This irq must register in POK kernel first.
+ * The parameter vector is the irq number.
+ * The handle_irq is a common Entry from Guest OS.
+ */</span>
+<span class="n">pok_ret_t</span> <span class="nf">pok_bsp_irq_register_vcpu</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">vector</span><span class="p">,</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">handle_irq</span><span class="p">)(</span><span class="kt">uint8_t</span><span class="p">))</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span> <span class="n">i</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="n">v</span><span class="p">;</span>
+  
+  <span class="k">if</span><span class="p">(</span><span class="n">vector</span> <span class="o">&lt;</span> <span class="mi">32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">POK_ERRNO_EINVAL</span><span class="p">;</span>
+  <span class="n">v</span> <span class="o">=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">].</span><span class="n">vcpu</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">16</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">vector</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">;</span>
+      <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">handler</span><span class="o">=</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">handle_irq</span><span class="p">;</span>
+      <span class="k">return</span> <span class="n">POK_ERRNO_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>As we can see, this structure in vCPU is not correspond to certain IRQ in POK kernel. Once you need some to handling some interrupt in vCPU, you invoke this hypercall, then this function will find an empty irq_desc, then assign the irq as it passed in hypercall, and set the handler of Guest OS.</p>
+
+<p>####Add the mask function in interrupt function.
+As we did not differentiate the physical interrupt and virtual interrupt now, so we treat pit interrupt as other interrupt, mask it, and deliver it.</p>
+
+<p>Let’s see the code of pit’s interrupt handler.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">INTERRUPT_HANDLER</span><span class="p">(</span><span class="n">pit_interrupt</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="c1">//uint8_t vector;
+</span>   <span class="c1">//vector = 32;
+</span>   <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">frame</span><span class="p">;</span>
+   <span class="n">pok_pic_eoi</span> <span class="p">(</span><span class="n">PIT_IRQ</span><span class="p">);</span>
+   <span class="n">do_IRQ</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span>
+   <span class="n">CLOCK_HANDLER</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>So let’s grab do_IRQ and check it out.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#ifdef POK_NEEDS_X86_VMM
+</span>
+<span class="cm">/*
+ * Deal with the interrupt if the interrupt should be handler by guest
+ */</span>
+<span class="kt">void</span> <span class="nf">do_IRQ</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">vector</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">do_IRQ_guest</span><span class="p">(</span><span class="n">vector</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+ * Decide the interrupt should be send to guest or not
+ */</span>
+<span class="kt">void</span> <span class="nf">do_IRQ_guest</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">vector</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">;</span>
+  <span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="n">v</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">POK_CONFIG_NB_PARTITIONS</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">vcpu</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span> <span class="mi">16</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">vector</span> <span class="o">==</span> <span class="n">vector</span><span class="p">)</span>
+      <span class="p">{</span>
+        <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pending</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
+	<span class="n">v</span><span class="o">-&gt;</span><span class="n">pending</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
+	<span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp">#endif </span><span class="cm">/* POK_NEEDS_X86_VMM */</span></code></pre></figure>
+
+<p>The do_IRQ is supposed to do some common treatment for interrupt, but I can’t see any of them. and do_IRQ_guest will, as I said before, check the irq_desc array in vCPU, if there is a register of this interrupt, mask it, counter++.</p>
+
+<p>This is all of the jobs in POK kernel of interrupt delivery.<br />
+There is three point in this implementation:<br />
+1. The addition of vCPU structure, how we manage the interrupt.<br />
+2. add register function in hypercall.<br />
+3. add vCPU mask function in corresponding interrupt handler.</p>
+
+<p>However, for first point, there are still something remained to be discussed. Is the way we manage the interrupt register and mask improvable?
+The approach now is simple enough, but also not effective enough in register, and mask function.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-07-29T00:00:00+08:00">July 29, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/the-pok_sched-function/" class="pagination--pager" title="The pok_sched function
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="pagination--pager" title="The design of last year and the design for now
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+

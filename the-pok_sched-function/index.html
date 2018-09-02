@@ -1,0 +1,599 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>The pok_sched function - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="The pok_sched function">
+
+
+  <link rel="canonical" href="http://yourenis.me/the-pok_sched-function/">
+  <meta property="og:url" content="http://yourenis.me/the-pok_sched-function/">
+
+
+
+  <meta property="og:description" content="The startup of POK kernel, especially for kernel space to user space, is so obscure that confused me continuously untill last week I spent some day to following the instruction of POK line by line in GDB.">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="The pok_sched function">
+  <meta name="twitter:description" content="The startup of POK kernel, especially for kernel space to user space, is so obscure that confused me continuously untill last week I spent some day to following the instruction of POK line by line in GDB.">
+  <meta name="twitter:url" content="http://yourenis.me/the-pok_sched-function/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-07-26T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="The pok_sched function">
+    <meta itemprop="description" content="The startup of POK kernel, especially for kernel space to user space, is so obscure that confused me continuously untill last week I spent some day to following the instruction of POK line by line in GDB.">
+    <meta itemprop="datePublished" content="July 26, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">The pok_sched function
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  2 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <p>The startup of POK kernel, especially for kernel space to user space, is so obscure that confused me continuously untill last week I spent some day to following the instruction of POK line by line in GDB.</p>
+
+<p>The purpose of this behavior, that I analysis the pok_sched function in details, is try to find out the appropriate time to insert the function of interrupt handling of guest OS. This time should be when the partition is switched. And in this time, we should check the interrupt for new partition.<br />
+####background
+When the POK kernel starting, the POK kernel will create a context of every partition main thread.
+pok_partition_init-&gt;pok_partition_setup_main_thread-&gt;pok_partition_thread_create-&gt;pok_space_context_create.
+This context will be used when pok_sched first run.</p>
+
+<p>####Where is the pok_sched is invoked?
+Of course pit_interrupt(timer interrupt handler).</p>
+
+<p>####What the pok_sched function do?
+In a word, the pok_sched elect next partition and it’s thread. then switch to it. 
+What important is how it switchs:</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">pok_sched_context_switch</span> <span class="p">(</span><span class="k">const</span> <span class="kt">uint32_t</span> <span class="n">elected_id</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">current_sp</span><span class="p">;</span>
+   <span class="kt">uint32_t</span> <span class="n">new_sp</span><span class="p">;</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">POK_SCHED_CURRENT_THREAD</span> <span class="o">==</span> <span class="n">elected_id</span><span class="p">)</span>
+   <span class="p">{</span>
+      <span class="k">return</span><span class="p">;</span>
+   <span class="p">}</span>
+
+   <span class="n">current_sp</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">POK_CURRENT_THREAD</span><span class="p">.</span><span class="n">sp</span><span class="p">;</span>
+   <span class="n">new_sp</span> <span class="o">=</span> <span class="n">pok_threads</span><span class="p">[</span><span class="n">elected_id</span><span class="p">].</span><span class="n">sp</span><span class="p">;</span>
+<span class="cm">/*
+    *  FIXME : current debug session about exceptions-handled
+   printf("switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
+   printf("switch to thread %d, sp=0x%x\n",elected_id, new_sp);
+   */</span>
+   <span class="n">pok_space_switch</span><span class="p">(</span><span class="n">POK_CURRENT_THREAD</span><span class="p">.</span><span class="n">partition</span><span class="p">,</span>
+		    <span class="n">pok_threads</span><span class="p">[</span><span class="n">elected_id</span><span class="p">].</span><span class="n">partition</span><span class="p">);</span>
+
+   <span class="n">current_thread</span> <span class="o">=</span> <span class="n">elected_id</span><span class="p">;</span>
+
+   <span class="n">pok_context_switch</span><span class="p">(</span><span class="n">current_sp</span><span class="p">,</span> <span class="n">new_sp</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>As we can see, the pok_space_switch will change the GDT according to the partition id, that is, the function of divide change.
+Then we used the current thread’s stack point, and next thread’s stack point as parameters to pass to pok_context_switch.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span>			<span class="n">pok_context_switch</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span> <span class="n">old_sp</span><span class="p">,</span>
+                                <span class="kt">uint32_t</span> <span class="n">new_sp</span><span class="p">);</span>
+<span class="n">asm</span> <span class="p">(</span><span class="s">".global pok_context_switch	</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"pok_context_switch:		</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"pushf				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"pushl %cs				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"pushl $1f				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"pusha				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"movl 48(%esp), %ebx		</span><span class="se">\n</span><span class="s">"</span> <span class="cm">/* 48(%esp) : &amp;old_sp, 52(%esp) : new_sp */</span>
+     <span class="s">"movl %esp, (%ebx)			</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"movl 52(%esp), %esp		</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"popa				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"iret				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"1:				</span><span class="se">\n</span><span class="s">"</span>
+     <span class="s">"ret"</span>
+     <span class="p">);</span> </code></pre></figure>
+
+<p>it’s essential to comprehend this segment of code that understanding the switch of stack point. Firstly, we push flag register in stack, and then CS, and finally the return address of pok_context_switch. this three push instructions corresponding to the iret instruction below. It seems dispensable here, you push the next line of iret, and then using iret to return next line. We will see it usefulness in next section.</p>
+
+<p>After this ,we push all register, switch stack points, and then pop all register for next thread. It’s normally task switch routine and immentionable.</p>
+
+<p>####The first time of the pit interrupt running.</p>
+
+<p>The thread zero(the startup thread ) will go to forever loop after initialization. and first time the pit_interrupt was invoke, what should be next thread?</p>
+
+<p>The first time, the context was fake and initialize in pok_space_context_create.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">uint32_t</span>	<span class="nf">pok_space_context_create</span> <span class="p">(</span><span class="kt">uint8_t</span>  <span class="n">partition_id</span><span class="p">,</span>
+                                   <span class="kt">uint32_t</span> <span class="n">entry_rel</span><span class="p">,</span>
+                                   <span class="kt">uint32_t</span> <span class="n">stack_rel</span><span class="p">,</span>
+                                   <span class="kt">uint32_t</span> <span class="n">arg1</span><span class="p">,</span>
+                                   <span class="kt">uint32_t</span> <span class="n">arg2</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="p">....</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">.</span><span class="n">__esp</span>  <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">sp</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">.</span><span class="n">eip</span><span class="p">);</span> <span class="cm">/* for pusha */</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">.</span><span class="n">eip</span>    <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">pok_dispatch_space</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">.</span><span class="n">cs</span>     <span class="o">=</span> <span class="n">GDT_CORE_CODE_SEGMENT</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">ctx</span><span class="p">.</span><span class="n">eflags</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">9</span><span class="p">;</span>
+
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">arg1</span>          <span class="o">=</span> <span class="n">arg1</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">arg2</span>          <span class="o">=</span> <span class="n">arg2</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">kernel_sp</span>     <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">sp</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">user_sp</span>       <span class="o">=</span> <span class="n">stack_rel</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">user_pc</span>       <span class="o">=</span> <span class="n">entry_rel</span><span class="p">;</span>
+   <span class="n">sp</span><span class="o">-&gt;</span><span class="n">partition_id</span>  <span class="o">=</span> <span class="n">partition_id</span><span class="p">;</span>
+<span class="p">....</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>As we can see, the eip of this context was set as pok_dispatch_space. 
+So first time, the pit_interrupt will invoke this function.</p>
+
+<p>After all of this analysis, I find the pok_sched is the function where switch the partitions, however, I’m hesitating because of the fat of pit_interrupt function now. should I put more things in this interrupt?</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-07-26T00:00:00+08:00">July 26, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-pok_sched-function/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-pok_sched-function/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/the-pok_sched-function/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-pok_sched-function/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/the-gdb-hell-with-qemu/" class="pagination--pager" title="The GDB hell with qemu
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="pagination--pager" title="The interrupt register function for vCPU
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+

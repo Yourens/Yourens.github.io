@@ -1,0 +1,660 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>The design of vCPU in POK - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="The design of vCPU in POK">
+
+
+  <link rel="canonical" href="http://yourenis.me/the-design-of-vcpu-in-pok/">
+  <meta property="og:url" content="http://yourenis.me/the-design-of-vcpu-in-pok/">
+
+
+
+  <meta property="og:description" content="If introduced vCPU into POK, then the architecture of paravirtualization will change. we add a VMM layer in to paravirtualization like Philipp’s illustration. (see below);I add a lot of explanation as comments, so please read the comments to get necessary infomation.This is just a draft, so the name of functions and values is only for illustrations their roles.####The structure of vCPU.struct vcpu{	/* 	 * The number of vcpu. To use this number to identify the vcpus, we 	 * should implement a system to generate the unique number in system and 	 * recycle them. 	 */  	vcpu_id id;			/* 	 * This is a list of vcpu, to organize vcpu in logic.	 */  	struct vcpu *prev,*next;	/* 	 * This id support us to bind the cpu with partitions.	 */  	partition_id partition;	/* 	 * The runstate indicate the state of vcpu, suggest to have running, 	 * ready, 	 * suspending.	 */  	vcpu_runstate_info runstate;	/* this is about sched_info, as for now, I can&#39;t figure out the 	 * algorithm of schedule, so this part is omit.	 */	vcpu_sched_info sched_info;	/* 	 * This struct contains some arch-dependent operations and attributes.	 */	vcpu_arch arch; }">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="The design of vCPU in POK">
+  <meta name="twitter:description" content="If introduced vCPU into POK, then the architecture of paravirtualization will change. we add a VMM layer in to paravirtualization like Philipp’s illustration. (see below);I add a lot of explanation as comments, so please read the comments to get necessary infomation.This is just a draft, so the name of functions and values is only for illustrations their roles.####The structure of vCPU.struct vcpu{	/* 	 * The number of vcpu. To use this number to identify the vcpus, we 	 * should implement a system to generate the unique number in system and 	 * recycle them. 	 */  	vcpu_id id;			/* 	 * This is a list of vcpu, to organize vcpu in logic.	 */  	struct vcpu *prev,*next;	/* 	 * This id support us to bind the cpu with partitions.	 */  	partition_id partition;	/* 	 * The runstate indicate the state of vcpu, suggest to have running, 	 * ready, 	 * suspending.	 */  	vcpu_runstate_info runstate;	/* this is about sched_info, as for now, I can&#39;t figure out the 	 * algorithm of schedule, so this part is omit.	 */	vcpu_sched_info sched_info;	/* 	 * This struct contains some arch-dependent operations and attributes.	 */	vcpu_arch arch; }">
+  <meta name="twitter:url" content="http://yourenis.me/the-design-of-vcpu-in-pok/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-06-10T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="The design of vCPU in POK">
+    <meta itemprop="description" content="If introduced vCPU into POK, then the architecture of paravirtualization will change. we add a VMM layer in to paravirtualization like Philipp’s illustration. (see below);I add a lot of explanation as comments, so please read the comments to get necessary infomation.This is just a draft, so the name of functions and values is only for illustrations their roles.####The structure of vCPU.struct vcpu{	/* 	 * The number of vcpu. To use this number to identify the vcpus, we 	 * should implement a system to generate the unique number in system and 	 * recycle them. 	 */  	vcpu_id id;			/* 	 * This is a list of vcpu, to organize vcpu in logic.	 */  	struct vcpu *prev,*next;	/* 	 * This id support us to bind the cpu with partitions.	 */  	partition_id partition;	/* 	 * The runstate indicate the state of vcpu, suggest to have running, 	 * ready, 	 * suspending.	 */  	vcpu_runstate_info runstate;	/* this is about sched_info, as for now, I can&#39;t figure out the 	 * algorithm of schedule, so this part is omit.	 */	vcpu_sched_info sched_info;	/* 	 * This struct contains some arch-dependent operations and attributes.	 */	vcpu_arch arch; }">
+    <meta itemprop="datePublished" content="June 10, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">The design of vCPU in POK
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <p>If introduced vCPU into POK, then the architecture of paravirtualization will change. we add a VMM layer in to paravirtualization like Philipp’s illustration. (see below);<br />
+I add a lot of explanation as comments, so please read the comments to get necessary infomation.<br />
+This is just a draft, so the name of functions and values is only for illustrations their roles.
+####The structure of vCPU.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu</span>
+<span class="p">{</span>
+	<span class="cm">/* 
+	 * The number of vcpu. To use this number to identify the vcpus, we 
+	 * should implement a system to generate the unique number in system and 
+	 * recycle them. 
+	 */</span>  
+	<span class="n">vcpu_id</span> <span class="n">id</span><span class="p">;</span>		
+	<span class="cm">/* 
+	 * This is a list of vcpu, to organize vcpu in logic.
+	 */</span>  
+	<span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span><span class="o">*</span><span class="n">next</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * This id support us to bind the cpu with partitions.
+	 */</span>  
+	<span class="n">partition_id</span> <span class="n">partition</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * The runstate indicate the state of vcpu, suggest to have running, 
+	 * ready, 
+	 * suspending.
+	 */</span>  
+	<span class="n">vcpu_runstate_info</span> <span class="n">runstate</span><span class="p">;</span>
+	<span class="cm">/* this is about sched_info, as for now, I can't figure out the 
+	 * algorithm of schedule, so this part is omit.
+	 */</span>
+	<span class="n">vcpu_sched_info</span> <span class="n">sched_info</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * This struct contains some arch-dependent operations and attributes.
+	 */</span>
+	<span class="n">vcpu_arch</span> <span class="n">arch</span><span class="p">;</span> 
+<span class="p">}</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu_arch</span>
+<span class="p">{</span>
+	<span class="cm">/* 
+	 * some arch-dependent attributes;
+	 */</span>
+	<span class="n">vcpu_guest_context</span> <span class="n">cxt</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * some arch-dependent operations;
+	 */</span>
+	<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">ctxt_switch_from</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="o">*</span><span class="n">vcpu</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">ctxt_switch_to</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="o">*</span> <span class="n">vcpu</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">schedule_tail</span><span class="p">)</span> <span class="p">(</span><span class="n">strcut</span> <span class="o">*</span> <span class="n">vcpu</span><span class="p">);</span>
+	<span class="cm">/*
+	 * interrupt information.
+	 */</span>
+	<span class="n">interrupt_struct</span> <span class="n">pending_interrupt</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>####The initialization of vCPU.
+The function of vCPU initialize is alloc_vcpu().</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="n">alloc_vcpu</span><span class="p">(</span> <span class="n">partition_id</span> <span class="n">pid</span><span class="p">,</span> <span class="n">vcpu_id</span> <span class="n">vid</span> <span class="p">);</span></code></pre></figure>
+
+<p>#####When to create a vCPU.
+When a partition setup, the vCPU should be created and bind with current partition. so we should insert alloc_vcpu in pok_partition_init.
+#####How to create a vCPU.
+Essentially the initialization of vCPU is a process of filling the structure.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="nf">alloc_vcpu</span><span class="p">(</span> <span class="n">partition_id</span> <span class="n">pid</span><span class="p">,</span> <span class="n">vcpu_id</span> <span class="n">vid</span> <span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">vcpu</span> <span class="o">*</span><span class="n">v</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * alloc the space of vcpu structure;;
+	 */</span>
+	<span class="n">v</span> <span class="o">=</span> <span class="n">alloc_vcpu_struct</span><span class="p">();</span>
+
+	<span class="cm">/* 
+	 * set the vcpu_id; 
+	 */</span>
+	<span class="n">v</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">vid</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * set the partition id, bind the partition with vcpu.
+	 */</span>
+	<span class="n">v</span><span class="o">-&gt;</span><span class="n">partition</span> <span class="o">=</span> <span class="n">pid</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * initialize the schedule information, mostly about time.
+	 */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">sched_init</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">destroy_vcpu</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="cm">/*
+	 * set run states;
+	 */</span>
+	<span class="n">v</span><span class="o">-&gt;</span><span class="n">runningstate</span> <span class="o">=</span> <span class="n">running</span><span class="p">;</span>
+	<span class="cm">/* 
+	 * This function will bind the arch-dependent operation will 
+	 *corresponding function, and fill the arch-dependent attributes;
+	 */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">vcpu_initialize</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">destroy_vcpu</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+
+<span class="p">}</span></code></pre></figure>
+
+<p>The function should be implement has been list upon.
+#####Problem remains.
+How to get a unique vcpu_id?<br />
+Is there already have a system to generate and organize identified number in POK?</p>
+
+<p>####The operations of vCPU.
+The program is constructed by algorithm and metadata. If the vCPU structure, in this situation, is metadata, then the what’s the algorithm? For example, the schedule certainly is one of the algorithm. On the other hand, as we concerned, if we got virtual CPU, the interrupt can be bond with vCPU, but not partition. So the inject of interrupt will be other algorithm of vCPU.</p>
+
+<p>#####The register of interrupt(bind vCPU with interrupt)
+This part is not clear before we adapt the mechanism of interrupt and notify system.</p>
+
+<p>#####The injection of interrupt to vCPU.
+This part is not clear before we adapt the mechanism of interrupt and notify system.</p>
+
+<p>#####Schedule.
+Here is two issues remain to be discussed. <br />
+Of course, we can design some interface of schedule that is related to vCPU now.</p>
+
+<ol>
+  <li>ctxt_switch_from(p);	//save the context of current vCPU context.</li>
+  <li>ctxt_switch_to(n);	//load the context of next vCPU context.</li>
+  <li>schedule_tail(n);	//switch to next vCPU.</li>
+</ol>
+
+<p>######The architecture of schedule.
+The XEN consider vCPU as processes in traditional OS, so XEN schedule vCPU to organize whole system. In the KVM ( Kernel-based Virtual Machine ), a virtual machine is a system thread, so the schedule is Linux kernel’s schedule. <br />
+As for POK, the schedule exist already, the schedule object is partitions. And I think it’s not easy/rational to cancel or replace it. So here we have two solutions:</p>
+
+<ol>
+  <li>Replace the partitions with vCPU in schedule algorithm.</li>
+  <li>Build a schedule for vCPU in partition layer. i.e., there will be two schedule in POK.</li>
+</ol>
+
+<p>I recommend to second solution, for keep SMP in mind as Philipp told me.</p>
+
+<p>######The algorithm of schedule.</p>
+
+<p>Once we determine using the second architecture of schedule, we should decide what algorithm to be used.</p>
+
+<p>####More operations.</p>
+
+<p>By macro <code class="highlighter-rouge">current</code>, get the current vCPU’s information.<br />
+Set part of information of current vCPU.</p>
+
+<p>Any operations more occurs to you, please tell me. <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a></p>
+
+<p>####Additional information.
+By introduce the vCPU into POK, we introduce a VMM layer into POK.
+The architecture will become below: <br />
+Here is Philipp’s illustration:<br />
+<img src="http://yourenis.me/images/Philipp\'s\ design.jpg" alt="Philipp's illustration" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-06-10T00:00:00+08:00">June 10, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-design-of-vcpu-in-pok/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-design-of-vcpu-in-pok/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/the-design-of-vcpu-in-pok/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-design-of-vcpu-in-pok/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/some-discussion-about-the-paravirtualization-architecture/" class="pagination--pager" title="Some discussion about the paravirtualization architecture
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-changes-of-vcpu-in-pok-kernel/" class="pagination--pager" title="The changes of vcpu in POK kernel
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+

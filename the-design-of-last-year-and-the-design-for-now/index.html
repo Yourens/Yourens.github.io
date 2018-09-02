@@ -1,0 +1,688 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>The design of last year and the design for now - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="The design of last year and the design for now">
+
+
+  <link rel="canonical" href="http://yourenis.me/the-design-of-last-year-and-the-design-for-now/">
+  <meta property="og:url" content="http://yourenis.me/the-design-of-last-year-and-the-design-for-now/">
+
+
+
+  <meta property="og:description" content="##The Interrupt handler of Philipp’s design1. StructureThe main structure of this design is meta_handler.struct meta_handler{  unsigned vector;  /* POK_CONFIG_NB_PARTITIONS + KERNEL */  void (*handler[POK_CONFIG_NB_PARTITIONS+1])(unsigned, void*);  int waiting[POK_CONFIG_NB_PARTITIONS+1];};">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="The design of last year and the design for now">
+  <meta name="twitter:description" content="##The Interrupt handler of Philipp’s design1. StructureThe main structure of this design is meta_handler.struct meta_handler{  unsigned vector;  /* POK_CONFIG_NB_PARTITIONS + KERNEL */  void (*handler[POK_CONFIG_NB_PARTITIONS+1])(unsigned, void*);  int waiting[POK_CONFIG_NB_PARTITIONS+1];};">
+  <meta name="twitter:url" content="http://yourenis.me/the-design-of-last-year-and-the-design-for-now/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-08-04T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="The design of last year and the design for now">
+    <meta itemprop="description" content="##The Interrupt handler of Philipp’s design1. StructureThe main structure of this design is meta_handler.struct meta_handler{  unsigned vector;  /* POK_CONFIG_NB_PARTITIONS + KERNEL */  void (*handler[POK_CONFIG_NB_PARTITIONS+1])(unsigned, void*);  int waiting[POK_CONFIG_NB_PARTITIONS+1];};">
+    <meta itemprop="datePublished" content="August 04, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">The design of last year and the design for now
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  5 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <p>##The Interrupt handler of Philipp’s design
+1. Structure
+The main structure of this design is meta_handler.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">meta_handler</span>
+<span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="n">vector</span><span class="p">;</span>
+  <span class="cm">/* POK_CONFIG_NB_PARTITIONS + KERNEL */</span>
+  <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">handler</span><span class="p">[</span><span class="n">POK_CONFIG_NB_PARTITIONS</span><span class="o">+</span><span class="mi">1</span><span class="p">])(</span><span class="kt">unsigned</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">waiting</span><span class="p">[</span><span class="n">POK_CONFIG_NB_PARTITIONS</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">};</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">meta_handler</span> <span class="n">handler_table</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span></code></pre></figure>
+
+<p>The vector is this interrupt’s vector. The handler is a point to the interrupt handler of Guest OS. This is dynamic register when Guest OS startup.</p>
+
+<p>The meta_handler is created as static, which means the whole system share this structure to set interrupt.<br />
+2. Register</p>
+
+<p>When the POK register a interrupt which irq number great than 31 in kernel, the pok_arch_event_register while register a interrupt with handler pok_irq_prologue.</p>
+
+<p>The handler of pok_irq_prologue is defined in interrupt_prologue.S. This function is defined as below:</p>
+
+<figure class="highlight"><pre><code class="language-gas" data-lang="gas">#define DISTINCT_INTERRUPT_ENTRY(_vector)	  \
+	.p2align 4				; \
+	.globl pok_irq_prologue_ ## _vector 	; \
+pok_irq_prologue_ ## _vector:		  \
+	cli			      ; \
+	subl  $4, %esp		      ; \
+	pusha			      ; \
+	push  %ds		      ; \
+	push  %es		      ; \
+        push  %esp		      ; \
+	mov   $0x10, %ax	      ; \
+        mov   %ax, %ds		      ; \
+        mov   %ax, %es		      ; \
+	movl  $ _vector, %eax	      ; \
+	jmp   _ISR_Handler	      ; \
+
+
+_ISR_Handler:
+/* the IRQ vector number resides in EAX */
+      push  %eax		      ; /* push vector number to stack */
+      call  _C_isr_handler	      ; /* func expects the argument on the stack */
+      
+      pop   %ecx		      ; /* grab vector number from stack */
+      
+      call  update_tss		      ; /* update_tss with *frame */
+
+      /* Cleanup stack*/
+
+      addl  $4, %esp	      ; /* discard old stack pointer */
+      pop   %es		      ;	/* remove interrupt_frame from stack */
+      pop   %ds		      ; /* and restore old context */
+      popa		      ;
+      addl  $4, %esp	      ; /* remove error code  padding from stack */
+
+      sti		      ; /* enable interrupts again */
+
+      /* Acknowledging the interrupt must be done in the kernel handler code */
+      iret		      ; /* return from interrupt */</code></pre></figure>
+
+<p>As we can see, the call flow is pok_irq_prologue-&gt;_ISR_Handler-&gt;_C_isr_handler.Now the problem is that _C_isr_handler do not work.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">_C_isr_handler</span><span class="p">(</span> <span class="kt">unsigned</span> <span class="n">vector</span><span class="p">,</span> <span class="n">interrupt_frame</span> <span class="o">*</span><span class="n">frame</span> <span class="p">)</span> 
+<span class="p">{</span>
+
+  <span class="c1">// If kernel handler registered 
+</span>  <span class="k">if</span><span class="p">(</span> <span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">handler</span><span class="p">[</span><span class="n">POK_CONFIG_NB_PARTITIONS</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="p">)</span>
+    <span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">handler</span><span class="p">[</span><span class="n">POK_CONFIG_NB_PARTITIONS</span><span class="p">](</span><span class="n">vector</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">frame</span><span class="p">);</span>
+
+
+  <span class="c1">// the following solution kills the cleanup and the update_tss code running
+</span>  <span class="c1">// after the _C_isr_handler.
+</span>  <span class="c1">// Stack is cleaned up and user space restored as far as necessary.
+</span>  
+  <span class="k">if</span><span class="p">(</span> <span class="n">partition_irq_enabled</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">handler</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="p">)</span>
+    <span class="p">{</span>
+      <span class="k">if</span><span class="p">(</span> <span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">waiting</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">)</span>
+      <span class="p">{</span>
+	<span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">waiting</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* working on interrupt */</span>
+	<span class="n">update_tss</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span> <span class="cm">/* needs to be done, as this path won't return to this handler */</span>
+	
+	<span class="kt">uint32_t</span> <span class="n">user_space_handler</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">handler_table</span><span class="p">[</span><span class="n">vector</span><span class="p">].</span><span class="n">handler</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">];</span>
+	<span class="n">user_space_handler</span> <span class="o">-=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">].</span><span class="n">base_addr</span><span class="p">;</span>
+	<span class="n">asm</span> <span class="k">volatile</span><span class="p">(</span>
+	    <span class="cm">/* move interrupt_frame parts to user space to be able to restore the
+	     * interrupted context
+	     */</span>
+	    <span class="s">"movl 56(%1), %%ebx	</span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move user esp address to register
+</span>
+	    <span class="s">"movl 60(%1),	%%eax	</span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs	</span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">// move user's SS to gs register
+</span>
+	    <span class="s">"movl 44(%1), %%eax	</span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move eip to register
+</span>	    <span class="s">"movl %%eax,	%%gs:(%%ebx)    </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">// move eip to user esp
+</span>
+	    <span class="s">"movl 36(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-4(%%ebx)  </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move eax to user esp
+</span>
+	    <span class="s">"movl 32(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span> 
+	    <span class="s">"movl %%eax,  %%gs:-8(%%ebx)  </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">// move ecx
+</span>
+	    <span class="s">"movl 28(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-12(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move edx
+</span>
+	    <span class="s">"movl 24(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,  %%gs:-16(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move ebx
+</span>
+	    <span class="s">"movl 20(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-20(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move __esp
+</span>
+	    <span class="s">"movl 16(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-24(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move ebp
+</span>
+	    <span class="s">"movl 12(%1), %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-28(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move esi
+</span>
+	    <span class="s">"movl 8(%1),  %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"movl %%eax,	%%gs:-32(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move edi 
+</span>
+	    <span class="cm">/* don't move ds and es, as they are already restored before the switch
+	     * to user space and are not touched by popa */</span>
+	    <span class="cm">/* prepare the user space stack to look like a propper function call */</span>
+
+	    <span class="s">"movl %0,	    %%gs:-36(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//arg1
+</span>
+	    <span class="s">"movl $0xffeeddcc, %%eax </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">// MAGIC NUMBER -&gt; searched for in user space handler
+</span>	    <span class="s">"movl %%eax,	    %%gs:-40(%%ebx) </span><span class="se">\t\n</span><span class="s">"</span>
+
+	    <span class="s">"movl 56(%1),	    %%eax </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"sub	$44,	    %%eax	    </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">// update esp in frame
+</span>	    <span class="s">"movl %%eax,	    56(%1)	    </span><span class="se">\t\n</span><span class="s">"</span>
+
+	    <span class="cm">/* prepare segment registers for switch to user space */</span>
+
+	    <span class="s">"movl 4(%1),  %%eax	  </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//move ds to eax
+</span>	    <span class="s">"movl (%1),   %%ebx	  </span><span class="se">\t\n</span><span class="s">"</span>	<span class="c1">//move es to eax
+</span>	    <span class="s">"mov %%ax,    %%ds	  </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"mov %%ax,    %%fs	  </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"mov %%ax,    %%gs	  </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="s">"mov %%bx,    %%es	  </span><span class="se">\t\n</span><span class="s">"</span>
+
+	    <span class="cm">/* prepare stack for iret with user space values saved in interrupt
+	     * frame*/</span>
+	    <span class="cm">/* TODO BOGUS if interrupt occurres in kernel space, must be checked! */</span>
+
+	    <span class="cm">/* delete interrupt frame from stack */</span>
+	    <span class="s">"movl %1, %%eax </span><span class="se">\t\n</span><span class="s">"</span>  <span class="c1">// move frame pointer to eax
+</span>	    <span class="s">"add $44, %%eax </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//  add 44 to the frame pointer
+</span>	    <span class="s">"movl %%eax, %%esp </span><span class="se">\t\n</span><span class="s">"</span> <span class="c1">//delete everything on the stack except eip,cs,eflags,esp,ss
+</span>
+	    <span class="c1">//	Enable/Disable interrupts at iret for testing purpose.
+</span>	    <span class="c1">//	"movl 8(%%esp), %%eax \t\n"   // grab eflags from stack
+</span>	    <span class="c1">//	"xor $0x200, %%eax \t\n"	      // set IF flag aka enable interrupts
+</span>	    <span class="c1">//	"movl %%eax, 8(%%esp) \t\n"  // push eflags back
+</span>
+	    <span class="cm">/* change eip address to user space handler address */</span>
+	    <span class="s">"movl %2, (%%esp) </span><span class="se">\t\n</span><span class="s">"</span>
+
+	    <span class="s">"iret		  </span><span class="se">\t\n</span><span class="s">"</span>
+	    <span class="o">:</span>
+	    <span class="o">:</span> <span class="s">"r"</span><span class="p">(</span><span class="n">vector</span><span class="p">),</span> <span class="s">"r"</span><span class="p">(</span><span class="n">frame</span><span class="p">),</span> <span class="s">"r"</span><span class="p">(</span><span class="n">user_space_handler</span><span class="p">)</span>
+	    <span class="o">:</span> <span class="s">"%eax"</span><span class="p">,</span> <span class="s">"%ebx"</span>
+	      <span class="p">);</span>
+	<span class="cm">/*
+	 *  NOT REACHED!
+	 */</span>
+      <span class="p">}</span>
+      <span class="cm">/* REACHED if interrupt occurres but partition isn't ready for it */</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This _C_isr_handler is very very long, but we can separate it as two part clearly. First C part, choose the handler from meta_handler, and calculate the right address of user space handler. The second is assemble part. In this part, we want to emulate the interrupt frame in user space, and then using the iret function to return to user function to execute the interrupt handler of Guest OS. However, this part did not work, especially the iret will generate a fault.</p>
+
+<p>###My Design for now:</p>
+
+<p>Firstly when interrupt occurs, the handler in POK kernel will mark the vCPU, and then in the pok_sched, when the partition resumes, the upcall_irq function will check the vCPU of current partition, then trying to running the handler of guest OS. <br />
+Now we are facing the same problem. The upcall_irq is invoked in kernel space. But the handler of guest OS should be invoke in privilege 3. So the problem is how to back to user space to running the handler.<br />
+The way return to user space in pok_sched to execute the handler is impractical. Because this will make the pit_interrupt so heavy. So we have to using a mechanism to mark it, and when in the user space, we invoke the handler alread be upcall before.<br />
+Or we can use the hypercall to transfer the handler into kernel space.But this way obviously make the kernel insecure. Also, we can using another thread to execute the handler those are invoked.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-08-04T00:00:00+08:00">August 04, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/the-interrupt-register-function-for-vcpu/" class="pagination--pager" title="The interrupt register function for vCPU
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" class="pagination--pager" title="The current workflow of interrupt handling
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+

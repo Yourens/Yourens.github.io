@@ -1,0 +1,657 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>The sensitive register in X86 virtualization and the implemention of virtual cpu in XEN - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="The sensitive register in X86 virtualization and the implemention of virtual cpu in XEN">
+
+
+  <link rel="canonical" href="http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/">
+  <meta property="og:url" content="http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/">
+
+
+
+  <meta property="og:description" content="In my views, there is no such concept called sensitive register in x86 platform. Although the x86 privilege model is beneficial for virtualization, the sensitive instructions of x86 virtualization is very complicated. The part of reason is because many sensitive instruction will have different performance in kernel and user model. That is say, there are some register, to access them in different privileges may cause different reflection. So, there is a set of sensitive instructions called Sensitive register instructions. I will abstract the sensitive register from this Sensitive register instructions.">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="The sensitive register in X86 virtualization and the implemention of virtual cpu in XEN">
+  <meta name="twitter:description" content="In my views, there is no such concept called sensitive register in x86 platform. Although the x86 privilege model is beneficial for virtualization, the sensitive instructions of x86 virtualization is very complicated. The part of reason is because many sensitive instruction will have different performance in kernel and user model. That is say, there are some register, to access them in different privileges may cause different reflection. So, there is a set of sensitive instructions called Sensitive register instructions. I will abstract the sensitive register from this Sensitive register instructions.">
+  <meta name="twitter:url" content="http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-06-03T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="The sensitive register in X86 virtualization and the implemention of virtual cpu in XEN">
+    <meta itemprop="description" content="In my views, there is no such concept called sensitive register in x86 platform. Although the x86 privilege model is beneficial for virtualization, the sensitive instructions of x86 virtualization is very complicated. The part of reason is because many sensitive instruction will have different performance in kernel and user model. That is say, there are some register, to access them in different privileges may cause different reflection. So, there is a set of sensitive instructions called Sensitive register instructions. I will abstract the sensitive register from this Sensitive register instructions.">
+    <meta itemprop="datePublished" content="June 03, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">The sensitive register in X86 virtualization and the implemention of virtual cpu in XEN
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  5 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <p>In my views, there is no such concept called sensitive register in x86 platform. Although the x86 privilege model is beneficial for virtualization, the sensitive instructions of x86 virtualization is very complicated. The part of reason is because many sensitive instruction will have different performance in kernel and user model. That is say, there are some register, to access them in different privileges may cause different reflection. So, there is a set of sensitive instructions called <strong>Sensitive register instructions</strong>. <br />
+I will abstract the sensitive register from this Sensitive register instructions.</p>
+
+<p>####The sensitive register and sensitive register instructions
+Let’s distinguish two key concepts first: <strong>sensitive</strong> and <strong>privilege</strong>. <br />
+When we describe a instruction sensitive means it will cause wrong results when the guest OS running it as native OS. And the privilege instructions always needs privilege to execute, or else will cause a fault in x86 system. Apparently, every privilege instruction is sensitive instruction.</p>
+
+<ol>
+  <li>
+    <p>SGDT, SIDT, SLDT <br />
+According to the Intel® 64 and IA-32 Architectures Software Developer’s Manual, the SGDT (Store Global Descriptor Table), SIDT (Store Interrupt Descriptor Table), SLDT (Store Local Descriptor Table) are not privilege instructions itself. That is say, they are sensitive but not privilege. However, The function of these instructions are store some real and unique register to memory. For the guest OS, the value of these register is apparent wrong, also when more then one partitions try to use the same register, it apparent get wrong value. So, on the traditional VMM, we fake some virtual registers, then replace these instructions with some functions returning the virtual register. <br />
+However, these register is mostly for virtualization memory management.</p>
+  </li>
+  <li>
+    <p>SMSW <br />
+The SMSW (Store Machine Status Word) instruction store the CR0[0:15] to a register or memory. Just like SGDT, the SMSW is not a privilege instruction itself, but using it in guest OS will return the real machine register, which is wrong for guest OS. Like SGDT, this sensitive instruction is not privilege. <br />
+We should fake a Machine Status Word register (CRx in x86 platform.)</p>
+  </li>
+  <li>
+    <p>PUSHF, POPF <br />
+PUSHF (Push EFLAGS Register onto the Stack) and POPF (Pop stack into EFLAGS Register) is a couple of opposite instructions. The PUSHF read the real machine register to stack while the POPF pop a stack value to real machine register. As a result, there are two issues. On the one hand, like SMSW, we have to fake register for Guest OS, on the other hand, the POPF needs more authority to invoke. I.e. they are privilege instruction.</p>
+  </li>
+</ol>
+
+<p>According to the discussion upon, this is all of <strong>sensitive register</strong> in x86 platform.<br />
+- LDTR<br />
+- IDTR<br />
+- GDTR<br />
+- CR[0]<br />
+- EFLAGS</p>
+
+<p>How ever it’s <code class="highlighter-rouge">definitely not enough</code> to build a vcpu in paravirtualization.</p>
+
+<p>####The vcpu structure in XEN.
+The source code is come from XEN 4.0.4, and the complete code is so long and I will just put the necessary information for now. The symbol <code class="highlighter-rouge">......</code>means there are some code is omitted.</p>
+
+<p>Firstly, the structure vcpu.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu</span> 
+<span class="p">{</span>
+    <span class="kt">int</span>              <span class="n">vcpu_id</span><span class="p">;</span> 
+    <span class="kt">int</span>              <span class="n">processor</span><span class="p">;</span>
+    <span class="n">vcpu_info_t</span>     <span class="o">*</span><span class="n">vcpu_info</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">domain</span>   <span class="o">*</span><span class="n">domain</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">vcpu</span>     <span class="o">*</span><span class="n">next_in_list</span><span class="p">;</span>
+<span class="p">......</span> <span class="n">info</span> <span class="n">of</span> <span class="n">schedule</span><span class="p">.</span>
+<span class="p">......</span> <span class="n">extra</span> <span class="n">info</span> <span class="n">about</span> <span class="n">fpu</span><span class="p">.</span>
+
+    <span class="cm">/* IRQ-safe virq_lock protects against delivering VIRQ to stale evtchn. */</span>
+    <span class="n">u16</span>              <span class="n">virq_to_evtchn</span><span class="p">[</span><span class="n">NR_VIRQS</span><span class="p">];</span>
+    <span class="n">spinlock_t</span>       <span class="n">virq_lock</span><span class="p">;</span>
+
+    <span class="cm">/* Bitmask of CPUs on which this VCPU may run. */</span>
+    <span class="n">cpumask_t</span>        <span class="n">cpu_affinity</span><span class="p">;</span>
+    <span class="cm">/* Used to change affinity temporarily. */</span>
+    <span class="n">cpumask_t</span>        <span class="n">cpu_affinity_tmp</span><span class="p">;</span>
+
+    <span class="cm">/* Bitmask of CPUs which are holding onto this VCPU's state. */</span>
+    <span class="n">cpumask_t</span>        <span class="n">vcpu_dirty_cpumask</span><span class="p">;</span>
+
+    <span class="k">struct</span> <span class="n">arch_vcpu</span> <span class="n">arch</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>Then let’s trace the arch_vcpu.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">arch_vcpu</span>
+<span class="p">{</span>
+    <span class="cm">/* Needs 16-byte aligment for FXSAVE/FXRSTOR. */</span>
+    <span class="k">struct</span> <span class="n">vcpu_guest_context</span> <span class="n">guest_context</span>
+    <span class="n">__attribute__</span><span class="p">((</span><span class="n">__aligned__</span><span class="p">(</span><span class="mi">16</span><span class="p">)));</span>
+
+    <span class="k">struct</span> <span class="n">pae_l3_cache</span> <span class="n">pae_l3_cache</span><span class="p">;</span>
+
+    <span class="kt">unsigned</span> <span class="kt">long</span>      <span class="n">flags</span><span class="p">;</span> <span class="cm">/* TF_ */</span>
+<span class="p">......</span> <span class="n">schedule</span> <span class="n">info</span><span class="p">.</span>
+
+ <span class="cm">/* Bounce information for propagating an exception to guest OS. */</span>
+    <span class="k">struct</span> <span class="n">trap_bounce</span> <span class="n">trap_bounce</span><span class="p">;</span>
+
+<span class="p">......</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">info</span><span class="p">.</span>
+
+
+    <span class="cm">/* Virtual Machine Extensions */</span>
+    <span class="k">struct</span> <span class="n">hvm_vcpu</span> <span class="n">hvm_vcpu</span><span class="p">;</span>
+
+<span class="p">......</span> <span class="n">shadow</span> <span class="n">page</span> <span class="n">info</span><span class="p">.</span>
+
+    <span class="k">struct</span> <span class="n">paging_vcpu</span> <span class="n">paging</span><span class="p">;</span>
+
+<span class="p">......</span>
+
+<span class="p">}</span> <span class="n">__cacheline_aligned</span><span class="p">;</span></code></pre></figure>
+
+<p>Then let’s trace down to the vcpu_guest_context.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">vcpu_guest_context</span> <span class="p">{</span>
+    <span class="cm">/* FPU registers come first so they can be aligned for FXSAVE/FXRSTOR. */</span>
+    <span class="k">struct</span> <span class="p">{</span> <span class="kt">char</span> <span class="n">x</span><span class="p">[</span><span class="mi">512</span><span class="p">];</span> <span class="p">}</span> <span class="n">fpu_ctxt</span><span class="p">;</span>       <span class="cm">/* User-level FPU registers     */</span>
+<span class="p">......</span> <span class="n">Some</span> <span class="n">macro</span><span class="p">.</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>                    <span class="cm">/* VGCF_* flags                 */</span>
+    <span class="k">struct</span> <span class="n">cpu_user_regs</span> <span class="n">user_regs</span><span class="p">;</span>         <span class="cm">/* User-level CPU registers     */</span>
+    <span class="k">struct</span> <span class="n">trap_info</span> <span class="n">trap_ctxt</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>        <span class="cm">/* Virtual IDT                  */</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ldt_base</span><span class="p">,</span> <span class="n">ldt_ents</span><span class="p">;</span>       <span class="cm">/* LDT (linear address, # ents) */</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">gdt_frames</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">gdt_ents</span><span class="p">;</span> <span class="cm">/* GDT (machine frames, # ents) */</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">kernel_ss</span><span class="p">,</span> <span class="n">kernel_sp</span><span class="p">;</span>     <span class="cm">/* Virtual TSS (only SS1/SP1)   */</span>
+    <span class="cm">/* NB. User pagetable on x86/64 is placed in ctrlreg[1]. */</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ctrlreg</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>               <span class="cm">/* CR0-CR7 (control registers)  */</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">debugreg</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>              <span class="cm">/* DB0-DB7 (debug registers)    */</span>
+<span class="p">......</span> <span class="n">Some</span> <span class="n">call</span> <span class="n">back</span> <span class="n">sign</span><span class="p">.</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>lastly let’s have a look to cpu_user_regs.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">cpu_user_regs</span> <span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">ebx</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">ecx</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">edx</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">esi</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">edi</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">ebp</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">eax</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">error_code</span><span class="p">;</span>    <span class="cm">/* private */</span>
+    <span class="kt">uint16_t</span> <span class="n">entry_vector</span><span class="p">;</span>  <span class="cm">/* private */</span>
+    <span class="kt">uint32_t</span> <span class="n">eip</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">cs</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>  <span class="n">saved_upcall_mask</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>  <span class="n">_pad0</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">eflags</span><span class="p">;</span>        <span class="cm">/* eflags.IF == !saved_upcall_mask */</span>
+    <span class="kt">uint32_t</span> <span class="n">esp</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">ss</span><span class="p">,</span> <span class="n">_pad1</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">es</span><span class="p">,</span> <span class="n">_pad2</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">ds</span><span class="p">,</span> <span class="n">_pad3</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">fs</span><span class="p">,</span> <span class="n">_pad4</span><span class="p">;</span>
+    <span class="kt">uint16_t</span> <span class="n">gs</span><span class="p">,</span> <span class="n">_pad5</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>So, in my opinion, if we want to implement a virtual cpu, the important is the cpu context. it not enough if we only get some sensitive register in implemention.</p>
+
+<p>If you got interest, track this flow: 
+schedule()<br />
+|– context_switch(prev, next)<br />
+| |– __context_switch<br />
+| | |– vcpu-&gt;arch.ctxt_switch_from(prev)<br />
+| | |– vcpu-&gt;arch.ctxt_switch_to(next)<br />
+| |– load_LDT<br />
+| |– load_segments<br />
+| | |– load “guset context” from VCPU<br />
+| |– schedule_tail(next)</p>
+
+<p>####Summary
+As we discussed, there are some sensitive instruction, and some sensitive register too, but maybe the concept sensitive register is not useful. Because, first, only fake the sensitive register is not enough to implement a virtual cpu. The context is essential for a cpu. Second, some sensitive instruction, like POP, it’s privilege related, for example, when it pop to a register, it needs to check DPL and CPL first, in this situation, every segment register need corresponding privilege to access.</p>
+
+<p>If we want to implement a vcpu, just implement the context of it, and then implement some hypercall corresponding to sensitive instruction.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-06-03T00:00:00+08:00">June 03, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-sensitive-register-in-x86-virtualization-and-the-implemention-of-virtual-cpu-in-xen/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/build-a-new-hypercall-system-by-imitating-the-syscall/" class="pagination--pager" title="Build a new Hypercall system by imitating the syscall
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-concepts-of-virtual-cpu/" class="pagination--pager" title="The concepts of virtual CPU
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+

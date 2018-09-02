@@ -1,0 +1,894 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>POK startup flow and interrupt system - Youren Shen</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Youren Shen">
+<meta property="og:title" content="POK startup flow and interrupt system">
+
+
+  <link rel="canonical" href="http://yourenis.me/pok-startup-flow-and-interrupt-system/">
+  <meta property="og:url" content="http://yourenis.me/pok-startup-flow-and-interrupt-system/">
+
+
+
+  <meta property="og:description" content="Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity.                                                                            — David Gelernter After you reading this post, you will find the pok kernel is so graceful and beautiful. So, let&#39;s do it.  ####Start from link script.">
+
+
+
+  <meta name="twitter:site" content="@shenyouren">
+  <meta name="twitter:title" content="POK startup flow and interrupt system">
+  <meta name="twitter:description" content="Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity.                                                                            — David Gelernter After you reading this post, you will find the pok kernel is so graceful and beautiful. So, let&#39;s do it.  ####Start from link script.">
+  <meta name="twitter:url" content="http://yourenis.me/pok-startup-flow-and-interrupt-system/">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+  
+
+  
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2014-03-23T00:00:00+08:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "The site of Youren Shen",
+      "url" : "http://yourenis.me",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Youren Shen</h3>
+    <p class="author__bio">Normal student from China, Main field on Computer System. We are born to suffering, still struggle in the world.</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Beijing China</li>
+      
+      
+      
+        <li><a href="mailto:shenyouren@gmail.com"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+      
+      
+      
+      
+        <li><a href="https://www.facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      
+      
+      
+      
+      
+        <li><a href="https://instagram.com/youren.shen"><i class="fa fa-fw fa-instagram" aria-hidden="true"></i> Instagram</a></li>
+      
+      
+      
+      
+        <li><a href="https://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://www.weibo.com/2516720233"><i class="fa fa-fw fa-weibo" aria-hidden="true"></i> Weibo</a></li>
+      
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="POK startup flow and interrupt system">
+    <meta itemprop="description" content="Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity.                                                                            — David Gelernter After you reading this post, you will find the pok kernel is so graceful and beautiful. So, let&#39;s do it.  ####Start from link script.">
+    <meta itemprop="datePublished" content="March 23, 2014">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">POK startup flow and interrupt system
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  7 minute read
+	
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <div class="highlighter-rouge"><pre class="highlight"><code>Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity.
+                                                                            — David Gelernter After you reading this post, you will find the pok kernel is so graceful and beautiful. So, let's do it.  ####Start from link script.
+</code></pre>
+</div>
+
+<p>The link script which is located in directory $POK_PATH/misc/ldscripts/x86/x86-qemu defined the start addr of POK kernel and partitions, also will assign a ENTRY point for the whole kernel elf file.</p>
+
+<p>So let’s first take a look at kernel.lds</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">OUTPUT_FORMAT</span><span class="p">(</span><span class="s">"elf32-i386"</span><span class="p">);</span>
+<span class="n">OUTPUT_ARCH</span><span class="p">(</span><span class="s">"i386"</span><span class="p">)</span>
+<span class="n">ENTRY</span><span class="p">(</span><span class="n">_core_entry</span><span class="p">)</span>
+
+<span class="n">SECTIONS</span>
+<span class="p">{</span>
+	<span class="p">.</span> <span class="o">=</span> <span class="mh">0x100000</span><span class="p">;</span>
+
+	<span class="n">__pok_begin</span> <span class="o">=</span> <span class="p">.</span> <span class="p">;</span>
+
+	<span class="p">.</span><span class="n">text</span> <span class="o">:</span>
+	<span class="p">{</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">multiboot</span><span class="p">)</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">text</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="p">.</span><span class="n">rodata</span> <span class="o">:</span>
+	<span class="p">{</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">rodata</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="p">.</span><span class="n">data</span> <span class="o">:</span>
+	<span class="p">{</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span><span class="p">(.</span><span class="n">bss</span><span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="n">COMMON</span><span class="p">)</span>
+
+		<span class="n">__archive_begin</span> <span class="o">=</span> <span class="p">.;</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">archive</span><span class="p">)</span>
+		<span class="n">__archive_end</span> <span class="o">=</span> <span class="p">.;</span>
+		<span class="n">__archive2_begin</span> <span class="o">=</span> <span class="p">.;</span>
+		<span class="o">*</span><span class="p">(.</span><span class="n">archive2</span><span class="p">)</span>
+		<span class="n">__archive2_end</span> <span class="o">=</span> <span class="p">.;</span>
+	<span class="p">}</span>
+
+	<span class="n">__pok_end</span> <span class="o">=</span> <span class="p">.</span> <span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>First, the script define the output format as elf on x86 platform.Then the _core_entry function was defined as entry point, which means when the POK startup, The _core_entry function will be execute firstly.</p>
+
+<p>The point “.” symbol means current address in linux scripts. So the POK kernel defined the start address of the first section as 0x100000. Then this script defined a variable names _pok_begin to mark this address.</p>
+
+<p>After that, There are three section definition text, and notice the __pok_end since we will use it in the partition initiation. Apparently, the _pok_end is a mark of end of pok kernel.</p>
+
+<p>####Next: the entry point.</p>
+
+<p>As we can see from the link scripts, The entry point is the _core_entry, which is in the file $POK_PATH/kernel/arch/x86/x86-qemu/entry.S.</p>
+
+<figure class="highlight"><pre><code class="language-gas" data-lang="gas">core_entry:
+_core_entry:
+	movl $(pok_stack + STACK_SIZE - 4), %ebp
+	movl %ebp, %esp
+
+	/* Set EFLAGS to 0 */
+	pushl $0
+	popf
+
+	mov %eax, pok_multiboot_magic
+	mov %ebx, pok_multiboot_info
+
+	call pok_boot
+loop:
+	hlt
+	jmp loop</code></pre></figure>
+
+<p>The _core_entry really did not do many things beside the initialization of stack and assignment of some multiboot variable. Finally, the _core_entry invoke the function pok_boot.</p>
+
+<p>####Nearly end but most important</p>
+
+<p>In my side, The pok_boot function in POK kernel is similar with the start_kernel in Linux in some extent. Both of them invoke the functions of initialization in their kernel.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">pok_boot</span> <span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">pok_arch_init</span><span class="p">();</span>
+   <span class="n">pok_bsp_init</span><span class="p">();</span>
+
+<span class="cp">#if defined (POK_NEEDS_TIME) || defined (POK_NEEDS_SCHED) || defined (POK_NEEDS_THREADS)
+</span>   <span class="n">pok_time_init</span><span class="p">();</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#ifdef POK_NEEDS_PARTITIONS
+</span>   <span class="n">pok_partition_init</span> <span class="p">();</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#ifdef POK_NEEDS_THREADS
+</span>   <span class="n">pok_thread_init</span> <span class="p">();</span>
+<span class="cp">#endif
+</span>
+<span class="cp">#if defined (POK_NEEDS_SCHED) || defined (POK_NEEDS_THREADS)
+</span>   <span class="n">pok_sched_init</span> <span class="p">();</span>
+<span class="cp">#endif
+</span>
+<span class="p">......</span>
+
+<span class="cp">#if defined (POK_NEEDS_DEBUG) || defined (POK_NEEDS_CONSOLE)
+</span>  <span class="n">pok_cons_write</span> <span class="p">(</span><span class="s">"POK kernel initialized</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">23</span><span class="p">);</span>
+<span class="cp">#endif
+</span>
+<span class="p">......</span>
+
+  <span class="n">pok_arch_preempt_enable</span><span class="p">();</span>
+
+<span class="cp">#ifndef POK_NEEDS_PARTITIONS
+</span>  <span class="cm">/**
+   * If we don't use partitioning service, we execute a main
+   * function. In that case, POK is acting like an executive,
+   * not a real kernel
+   */</span>
+  <span class="n">main</span> <span class="p">();</span>
+<span class="cp">#endif
+</span><span class="p">}</span></code></pre></figure>
+
+<p>Then we should look at the function behind line by line. 
+The pok_arch_init:</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_arch_init</span> <span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">pok_gdt_init</span> <span class="p">();</span>
+  <span class="n">pok_event_init</span> <span class="p">();</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>It seems simply easy, right? So Let’s check out the pok_gdt_init.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_gdt_init</span><span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">sysdesc_t</span> <span class="n">sysdesc</span><span class="p">;</span>
+
+   <span class="cm">/* Set null descriptor and clear table */</span>
+   <span class="n">memset</span><span class="p">(</span><span class="n">pok_gdt</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">gdt_entry_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">GDT_SIZE</span><span class="p">);</span>
+
+   <span class="cm">/* Set kernel descriptors */</span>
+   <span class="n">gdt_set_segment</span><span class="p">(</span><span class="n">GDT_CORE_CODE_SEGMENT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">~</span><span class="mi">0UL</span><span class="p">,</span> <span class="n">GDTE_CODE</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+   <span class="n">gdt_set_segment</span><span class="p">(</span><span class="n">GDT_CORE_DATA_SEGMENT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">~</span><span class="mi">0UL</span><span class="p">,</span> <span class="n">GDTE_DATA</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+   <span class="cm">/* Load GDT */</span>
+   <span class="n">sysdesc</span><span class="p">.</span><span class="n">limit</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">pok_gdt</span><span class="p">);</span>
+   <span class="n">sysdesc</span><span class="p">.</span><span class="n">base</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">pok_gdt</span><span class="p">;</span>
+
+   <span class="n">asm</span> <span class="p">(</span><span class="s">"lgdt %0"</span>
+         <span class="o">:</span>
+         <span class="o">:</span> <span class="s">"m"</span> <span class="p">(</span><span class="n">sysdesc</span><span class="p">));</span>
+
+   <span class="cm">/* Reload Segments */</span>
+   <span class="n">asm</span> <span class="p">(</span><span class="s">"ljmp %0, $1f	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"1:		</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %1, %%ax	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %%ax, %%ds	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %%ax, %%es	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %%ax, %%fs	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %%ax, %%gs	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="s">"mov %%ax, %%ss	</span><span class="se">\n</span><span class="s">"</span>
+         <span class="o">:</span>
+         <span class="o">:</span> <span class="s">"i"</span> <span class="p">(</span><span class="n">GDT_CORE_CODE_SEGMENT</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">),</span>
+         <span class="s">"i"</span> <span class="p">(</span><span class="n">GDT_CORE_DATA_SEGMENT</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span>
+         <span class="o">:</span> <span class="s">"eax"</span><span class="p">);</span>
+
+   <span class="n">pok_tss_init</span><span class="p">();</span>
+
+   <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<ol>
+  <li>At the first we define a array named as pok_gdt to store the GDT and a sysdesc to memorize GDTR.</li>
+  <li>Initialize the pok_gdt, using the memset to set every bit in array pok_gdt as 0.</li>
+  <li>Set the first node(in fact is second node, index is 1, and the real first node in gdt(which index is zero) is dummy, So I’d like to ignore it) in pok_gdt as base=0, limit=0xffffffff, type = CODE, and DPL=0.
+Then set second node in pok_gdt as base=0, limit=0xffffffff, type = DATA, and DPL=0.</li>
+  <li>Set the sysdesc as the pok_gdt’s size and base address, then using the lgdt instruction to set GDTR.</li>
+  <li>This is very important.The inline assembly is not easy to read, So I translated it to real assembly.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-objdump" data-lang="objdump">  1024b7:   ea be 24 10 00 08 00 	ljmp   $0x8,$0x1024be
+  1024be:	66 b8 10 00          	mov    $0x10,%ax
+  1024c2:	8e d8                	mov    %eax,%ds
+  1024c4:	8e c0                	mov    %eax,%es
+  1024c6:	8e e0                	mov    %eax,%fs
+  1024c8:	8e e8                	mov    %eax,%gs
+  1024ca:	8e d0                	mov    %eax,%ss</code></pre></figure>
+
+<p>the first line “ljmp $0x8,$021024be” is tring to jump to the GDT_CORE_CODE_SEGMENT(0x8) with offset $0x1024be.
+that is say, although this line is just jump to next line, but it set the cs as GDT_CORE_CODE_SEGMENT.
+Then the POK kernel set all ds,es,fs,gs,ss as GDT_CORE_DATA_SEGMENT.</p>
+
+<p>Here is the GDT initialization.Next is IDT initialization.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_event_init</span> <span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">pok_idt_init</span> <span class="p">();</span>
+
+<span class="cp">#if defined (POK_NEEDS_DEBUG) || defined (POK_NEEDS_ERROR_HANDLING)
+</span>   <span class="n">pok_exception_init</span> <span class="p">();</span>
+<span class="cp">#endif
+</span>
+   <span class="n">pok_syscall_init</span> <span class="p">();</span>
+
+   <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Aha, as we can see, in the pok_event_init, the POK initialized all kind of interrupt, exception, and syscall.
+So Let’s take a more closer look.
+OK, take it easy, the IDT initialization is so similar with GDT, so it won’t be difficult.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_idt_init</span> <span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">sysdesc_t</span> <span class="n">sysdesc</span><span class="p">;</span>
+
+   <span class="cm">/* Clear table */</span>
+   <span class="n">memset</span><span class="p">(</span><span class="n">pok_idt</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">idt_entry_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">IDT_SIZE</span><span class="p">);</span>
+
+   <span class="cm">/* Load IDT */</span>
+   <span class="n">sysdesc</span><span class="p">.</span><span class="n">limit</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">pok_idt</span><span class="p">);</span>
+   <span class="n">sysdesc</span><span class="p">.</span><span class="n">base</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">pok_idt</span><span class="p">;</span>
+
+   <span class="n">asm</span> <span class="p">(</span><span class="s">"lidt %0"</span>
+        <span class="o">:</span>
+        <span class="o">:</span> <span class="s">"m"</span> <span class="p">(</span><span class="n">sysdesc</span><span class="p">));</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>You see, It initialize the IDTR just like initialize the GDTR before.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">pok_ret_t</span> <span class="nf">pok_exception_init</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">exception_list</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">handler</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">pok_idt_set_gate</span> <span class="p">(</span><span class="n">exception_list</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">vector</span><span class="p">,</span>
+		                <span class="n">GDT_CORE_CODE_SEGMENT</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span>
+                      <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">exception_list</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">handler</span><span class="p">,</span>
+                      <span class="n">IDTE_INTERRUPT</span><span class="p">,</span>
+                      <span class="mi">3</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Here we go, to guess the effect of this function is really easy, initialize the exception handler by pok_idt_set_gate.
+But to understand it completely, we have to look this struct first.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">const</span> <span class="k">struct</span>
+<span class="p">{</span>
+  <span class="kt">uint16_t</span>	<span class="n">vector</span><span class="p">;</span>
+  <span class="kt">void</span>		<span class="p">(</span><span class="o">*</span><span class="n">handler</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">exception_list</span><span class="p">[]</span> <span class="o">=</span>
+<span class="p">{</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_DIVIDE_ERROR</span><span class="p">,</span> <span class="n">exception_divide_error</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_DEBUG</span><span class="p">,</span> <span class="n">exception_debug</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_NMI</span><span class="p">,</span> <span class="n">exception_nmi</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_BREAKPOINT</span><span class="p">,</span> <span class="n">exception_breakpoint</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_OVERFLOW</span><span class="p">,</span> <span class="n">exception_overflow</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_BOUNDRANGE</span><span class="p">,</span> <span class="n">exception_boundrange</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_INVALIDOPCODE</span><span class="p">,</span> <span class="n">exception_invalidopcode</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_NOMATH_COPROC</span><span class="p">,</span> <span class="n">exception_nomath_coproc</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_DOUBLEFAULT</span><span class="p">,</span> <span class="n">exception_doublefault</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_COPSEG_OVERRUN</span><span class="p">,</span> <span class="n">exception_copseg_overrun</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_INVALID_TSS</span><span class="p">,</span> <span class="n">exception_invalid_tss</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_SEGMENT_NOT_PRESENT</span><span class="p">,</span> <span class="n">exception_segment_not_present</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_STACKSEG_FAULT</span><span class="p">,</span> <span class="n">exception_stackseg_fault</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_GENERAL_PROTECTION</span><span class="p">,</span> <span class="n">exception_general_protection</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_PAGEFAULT</span><span class="p">,</span> <span class="n">exception_pagefault</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_FPU_FAULT</span><span class="p">,</span> <span class="n">exception_fpu_fault</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_ALIGNEMENT_CHECK</span><span class="p">,</span> <span class="n">exception_alignement_check</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_MACHINE_CHECK</span><span class="p">,</span> <span class="n">exception_machine_check</span><span class="p">},</span>
+  <span class="p">{</span> <span class="n">EXCEPTION_SIMD_FAULT</span><span class="p">,</span> <span class="n">exception_simd_fault</span><span class="p">},</span>
+  <span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">}</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>Here we defined a list of struct named exception_list. every exception in the list has a vector and a handler relate to the function dealing with the exception corresponded.
+Now we turn back to see the pok_exception_init, we just set every exception handler to IDT by using pok_idt_set_gate. And the handler is defined in exception_list.</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/**
+ * Init system calls
+ */</span>
+<span class="n">pok_ret_t</span> <span class="nf">pok_syscall_init</span> <span class="p">()</span>
+<span class="p">{</span>
+   <span class="n">pok_idt_set_gate</span> <span class="p">(</span><span class="n">POK_SYSCALL_INT_NUMBER</span><span class="p">,</span>
+                     <span class="n">GDT_CORE_CODE_SEGMENT</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span>
+                     <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">syscall_gate</span><span class="p">,</span>
+                     <span class="n">IDTE_INTERRUPT</span><span class="p">,</span>
+                     <span class="mi">3</span><span class="p">);</span>
+
+   <span class="k">return</span> <span class="p">(</span><span class="n">POK_ERRNO_OK</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Now, in the pok_syscall_init, we just set the syscall entry point as index=42, handler=syscall_gate.</p>
+
+<p>Now, this part is not easy to understand as before. I will take it slowly.</p>
+
+<p>To begin with, where is the syscall_gate defined?</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">INTERRUPT_HANDLER_syscall</span><span class="p">(</span><span class="n">syscall_gate</span><span class="p">)</span></code></pre></figure>
+
+<p>The INTERRUPT_HANDLER_syscall is a macro defined in the file $POK_PATH/kernel/include/arch/x86/interrupt.h</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#define INTERRUPT_HANDLER_syscall(name)						\
+int name (void);							\
+void name##_handler(interrupt_frame* frame);				\
+  asm (	    			      			      		\
+      ".global "#name "			\n"				\
+      "\t.type "#name",@function	\n"				\
+      #name":				\n"				\
+      "cli			\n"				\
+      "subl $4, %esp			\n"				\
+      "pusha				\n"				\
+      "push %ds				\n"				\
+      "push %es				\n"				\
+      "push %esp			\n"				\
+      "mov $0x10, %ax			\n"				\
+      "mov %ax, %ds			\n"				\
+      "mov %ax, %es			\n"				\
+      "call " #name"_handler		\n"				\
+      "movl %eax, 40(%esp)         \n" </span><span class="cm">/* return value */</span><span class="cp">  \
+      "call update_tss			\n"				\
+      "addl $4, %esp			\n"				\
+      "pop %es				\n"				\
+      "pop %ds				\n"				\
+      "popa				\n"				\
+      "addl $4, %esp			\n"				\
+      "sti			\n"				\
+      "iret				\n"				\
+      );								\
+void name##_handler(interrupt_frame* frame)</span></code></pre></figure>
+
+<p>The fisrt two lines are two declaration of functions syscall_gate and syscall_gate_handler.
+The asm block defines the functions syscall_gate,which will do some saving job and change the cs to kernel segment, then it will call syscall_gate_handler.
+As we can see, the last line of this macro is a definition of syscall_gate_handler, which will followe by the code we see in sycalls.c:</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">INTERRUPT_HANDLER_syscall</span><span class="p">(</span><span class="n">syscall_gate</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="n">pok_syscall_info_t</span>   <span class="n">syscall_info</span><span class="p">;</span>
+   <span class="n">pok_ret_t</span>            <span class="n">syscall_ret</span><span class="p">;</span>
+   <span class="n">pok_syscall_args_t</span><span class="o">*</span>  <span class="n">syscall_args</span><span class="p">;</span>
+   <span class="n">pok_syscall_id_t</span>     <span class="n">syscall_id</span><span class="p">;</span>
+
+   <span class="cm">/*
+    * Give informations about syscalls: which partition, thread
+    * initiates the syscall, the base addr of the partition and so on.
+    */</span>
+   <span class="n">syscall_info</span><span class="p">.</span><span class="n">partition</span> <span class="o">=</span> <span class="n">PARTITION_ID</span> <span class="p">(</span><span class="n">frame</span><span class="o">-&gt;</span><span class="n">cs</span><span class="p">);</span>
+   <span class="n">syscall_info</span><span class="p">.</span><span class="n">base_addr</span> <span class="o">=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">syscall_info</span><span class="p">.</span><span class="n">partition</span><span class="p">].</span><span class="n">base_addr</span><span class="p">;</span>
+   <span class="n">syscall_info</span><span class="p">.</span><span class="kr">thread</span>    <span class="o">=</span> <span class="n">POK_SCHED_CURRENT_THREAD</span><span class="p">;</span>
+
+   <span class="n">syscall_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">pok_syscall_args_t</span><span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">frame</span><span class="o">-&gt;</span><span class="n">ebx</span> <span class="o">+</span> <span class="n">syscall_info</span><span class="p">.</span><span class="n">base_addr</span><span class="p">);</span>
+
+   <span class="cm">/*
+    * Get the syscall id in the eax register
+    */</span>
+   <span class="n">syscall_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">pok_syscall_id_t</span><span class="p">)</span> <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eax</span><span class="p">;</span>
+
+   <span class="cm">/*
+    * Check that pointer is inside the adress space
+    */</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">POK_CHECK_PTR_IN_PARTITION</span><span class="p">(</span><span class="n">syscall_info</span><span class="p">.</span><span class="n">partition</span><span class="p">,</span> <span class="n">syscall_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="p">{</span>
+         <span class="n">syscall_ret</span> <span class="o">=</span> <span class="n">POK_ERRNO_EINVAL</span><span class="p">;</span>
+   <span class="p">}</span>
+   <span class="k">else</span>
+   <span class="p">{</span>
+      <span class="cm">/*
+       * Perform the syscall baby !
+       */</span>
+      <span class="n">syscall_ret</span> <span class="o">=</span> <span class="n">pok_core_syscall</span> <span class="p">(</span><span class="n">syscall_id</span><span class="p">,</span> <span class="n">syscall_args</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">syscall_info</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="cm">/*
+    * And finally, put the return value in eax register
+    */</span>
+   <span class="n">asm</span> <span class="p">(</span><span class="s">"movl %0, %%eax  </span><span class="se">\n</span><span class="s">"</span>
+	<span class="o">:</span>
+	<span class="o">:</span> <span class="s">"m"</span> <span class="p">(</span><span class="n">syscall_ret</span><span class="p">));</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This function is important too, but I don’t want a such long post. As a result, I will discuss it next week.
+we just need to know the architecture of syscall now.</p>
+
+<p>Finally we finished the discuss of pok_arch_init. And we have a overview of the architecture of interrupt system in POK.
+I’d like to discuss the syscall in more details, and the changes we have alreadly done in pok kernel interrupt system.</p>
+
+<p>If I got anything wrong or you have any problem, Please feel free to comment of send me a email shenyouren@gmail.com.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2014-03-23T00:00:00+08:00">March 23, 2014</time></p>
+        
+      </footer>
+
+      
+
+<section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/pok-startup-flow-and-interrupt-system/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/pok-startup-flow-and-interrupt-system/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=http://yourenis.me/pok-startup-flow-and-interrupt-system/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/pok-startup-flow-and-interrupt-system/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="http://yourenis.me/how-to-run-rtems-on-pok/" class="pagination--pager" title="How to run RTEMS on POK
+">Previous</a>
+    
+    
+      <a href="http://yourenis.me/the-syscall-system-in-pok/" class="pagination--pager" title="The syscall system in POK and interrupt handler in POK
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+      
+
+<div class="page__comments">
+  <h4 class="page__comments-title">Leave a Comment</h4>
+  
+    <section id="disqus_thread"></section>
+  
+</div>
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  3 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. 
+The bug is quite tricky because it’s related to how Linux load ...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">rtnetlink是基于netlink机制的一个内核和协议栈相关操作的机制。其允许用户程序对内核的路由表进行读写。是Linux 2.2之后的一个新的功能。这个功能非常重要，在很多基础的工具中的使用也非常广泛。但是很少资料直接对rtnetlink的具体使用进行讲解，中文的资料只有一些对Manual的翻译和补充，Li...</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  less than 1 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">从开学到现在，经过一个月的慢慢累积，将工作环境好好提升了一番。
+
+
+</p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
+  </article>
+</div>
+        
+      </div>
+    </div>
+  
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    
+      <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+    
+    
+      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+    
+    
+      <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+      </footer>
+    </div>
+
+    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+
+
+
+
+
+  
+  <script type="text/javascript">
+  	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  	var disqus_shortname = 'Yourensgithubio';
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function() {
+  		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  	})();
+
+  	/* * * DON'T EDIT BELOW THIS LINE * * */
+  	(function () {
+  		var s = document.createElement('script'); s.async = true;
+  		s.type = 'text/javascript';
+  		s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  	}());
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+  </body>
+</html>
+
