@@ -32,8 +32,8 @@
 <meta property="og:title" content="The current workflow of interrupt handling">
 
 
-  <link rel="canonical" href="http://yourenis.me/the-current-workflow-of-interrupt-handling/">
-  <meta property="og:url" content="http://yourenis.me/the-current-workflow-of-interrupt-handling/">
+  <link rel="canonical" href="http://Yourens.github.io/the-current-workflow-of-interrupt-handling/">
+  <meta property="og:url" content="http://Yourens.github.io/the-current-workflow-of-interrupt-handling/">
 
 
 
@@ -44,7 +44,7 @@
   <meta name="twitter:site" content="@shenyouren">
   <meta name="twitter:title" content="The current workflow of interrupt handling">
   <meta name="twitter:description" content="##The workflow of current interrupt handling###The structure As usual, let’s start with key structure:struct vcpu{ ......    /*    * This bit will be set ture if there is a interrupt pending.    */   bool_t pending;   arch_vcpu_t arch;......};">
-  <meta name="twitter:url" content="http://yourenis.me/the-current-workflow-of-interrupt-handling/">
+  <meta name="twitter:url" content="http://Yourens.github.io/the-current-workflow-of-interrupt-handling/">
 
   
     <meta name="twitter:card" content="summary">
@@ -78,7 +78,7 @@
       "@context" : "http://schema.org",
       "@type" : "Person",
       "name" : "The site of Youren Shen",
-      "url" : "http://yourenis.me",
+      "url" : "http://Yourens.github.io",
       "sameAs" : null
     }
   </script>
@@ -91,7 +91,7 @@
 <!-- end SEO -->
 
 
-<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+<link href="http://Yourens.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
 
 <!-- http://t.co/dKP3o1e -->
 <meta name="HandheldFriendly" content="True">
@@ -103,7 +103,7 @@
 </script>
 
 <!-- For all browsers -->
-<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+<link rel="stylesheet" href="http://Yourens.github.io/assets/css/main.css">
 
 <meta http-equiv="cleartype" content="on">
     <!-- start custom head snippets -->
@@ -126,16 +126,16 @@
       <nav id="site-nav" class="greedy-nav">
         <button><div class="navicon"></div></button>
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://Yourens.github.io/">Youren Shen</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/blog">Blog</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/resume">Resume</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/gallery">Gallery</a></li>
           
         </ul>
         <ul class="hidden-links hidden"></ul>
@@ -163,7 +163,7 @@
 
   <div class="author__avatar">
     
-    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    	<img src="http://Yourens.github.io/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
     
   </div>
 
@@ -245,7 +245,7 @@
 
       <section class="page__content" itemprop="text">
         <p>##The workflow of current interrupt handling
-<img src="http://yourenis.me/images/The work flow of interrupt handler in vCPU.jpg" alt="The work flow of interrupt handler in vCPU" /><br />
+<img src="http://Yourens.github.io/images/The work flow of interrupt handler in vCPU.jpg" alt="The work flow of interrupt handler in vCPU" /><br />
 ###The structure 
 As usual, let’s start with key structure:</p>
 
@@ -292,29 +292,35 @@ As usual, let’s start with key structure:</p>
 <span class="p">.......</span>
 <span class="p">}</span><span class="n">vcpu_context_t</span><span class="p">;</span></code></pre></figure>
 
-<p>That’s the key structure of vCPU related with interrupt handling.<br />
-1. In the structure vcpu, there is a bit to mask whether there is a interrupt hanging in this vCPU or not.<br />
-2. In the structure arch_vcpu, the handler is the common entry of Guest OS interrupt handling.<br />
-3. In the structure arch_vcpu, the irq_desc arrays will record the interrupt register on this vCPU, and the counter in irq_desc will record the number this interrupt occurs.<br />
-4. The interrupt frame in arch_vcpu will store the interrupt context.<br />
+<p>That’s the key structure of vCPU related with interrupt handling.</p>
+<ol>
+  <li>In the structure vcpu, there is a bit to mask whether there is a interrupt hanging in this vCPU or not.</li>
+  <li>In the structure arch_vcpu, the handler is the common entry of Guest OS interrupt handling.</li>
+  <li>In the structure arch_vcpu, the irq_desc arrays will record the interrupt register on this vCPU, and the counter in irq_desc will record the number this interrupt occurs.</li>
+  <li>The interrupt frame in arch_vcpu will store the interrupt context.<br />
 ###The interrupt register function for vCPU <br />
 See this <a href="http://huaiyusched.github.io/the-interrupt-register-function-for-vcpu/">blog</a> please, thank you.<br />
-This blog has been update in 7 August to fit newest code.</p>
+This blog has been update in 7 August to fit newest code.</li>
+</ol>
 
 <p>###The design of upcall mechanism.
 This is a difficult part, I have tried some way to implement it. But in this blog, I will not told you how I resolve it, I will only post the approaching for now.</p>
 
-<p>####When all the things has been done of register and mask part, now the structure upon should be set as: <br />
-1. The irq_desc, of course, is set with some interrupt, the vector reveal the number of the interrupt, and the counter reveal the time the interrupt happened. <br />
-2. The handler in arch_vcpu, is set in pok_bsp_irq_register_vcpu, and the Guest pass the common entry of interrupt handling in Guest OS to pok_bsp_irq_register_vcpu. <br />
-####What’s the duty of upcall_irq?</p>
+<p>####When all the things has been done of register and mask part, now the structure upon should be set as:</p>
+<ol>
+  <li>The irq_desc, of course, is set with some interrupt, the vector reveal the number of the interrupt, and the counter reveal the time the interrupt happened.</li>
+  <li>The handler in arch_vcpu, is set in pok_bsp_irq_register_vcpu, and the Guest pass the common entry of interrupt handling in Guest OS to pok_bsp_irq_register_vcpu. <br />
+####What’s the duty of upcall_irq?</li>
+</ol>
 
 <p>The upcall_irq, as its name reveals, should notify the Guest OS about interrupt occurs. “up” means from Host OS to Guest OS; “call” means notify, call the Guest OS execute interrupt handler; and “irq” is a suffix, means interrupt related.</p>
 
 <p>####When the upcall will be invoked?
-When the partition resumes, the hanging interrupt of this partition should be tickled. So: <br />
-1. The corresponding partition resumes. <br />
-2. One interrupt hanging in this vCPU.</p>
+When the partition resumes, the hanging interrupt of this partition should be tickled. So:</p>
+<ol>
+  <li>The corresponding partition resumes.</li>
+  <li>One interrupt hanging in this vCPU.</li>
+</ol>
 
 <p>####What the upcall_irq exactly do?</p>
 
@@ -325,8 +331,8 @@ When the partition resumes, the hanging interrupt of this partition should be ti
   <span class="kt">uint32_t</span> <span class="n">_eip</span><span class="p">;</span>
   <span class="kt">uint32_t</span> <span class="n">user_space_handler</span><span class="p">;</span>
   <span class="n">v</span> <span class="o">=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">].</span><span class="n">vcpu</span><span class="p">;</span>
-  <span class="n">_eip</span> <span class="o">=</span> <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eip</span><span class="p">;</span>		<span class="c1">// if no interrupt happened, return the point of normal program;
-</span>  <span class="n">user_space_handler</span> <span class="o">=</span> <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span>
+  <span class="n">_eip</span> <span class="o">=</span> <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eip</span><span class="p">;</span>		<span class="c1">// if no interrupt happened, return the point of normal program;</span>
+  <span class="n">user_space_handler</span> <span class="o">=</span> <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">handler</span><span class="p">;</span>
   <span class="n">user_space_handler</span> <span class="o">-=</span> <span class="n">pok_partitions</span><span class="p">[</span><span class="n">POK_SCHED_CURRENT_PARTITION</span><span class="p">].</span><span class="n">base_addr</span><span class="p">;</span>
   <span class="k">if</span><span class="p">(</span><span class="n">v</span><span class="o">-&gt;</span><span class="n">pending</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
   <span class="p">{</span>
@@ -337,8 +343,8 @@ When the partition resumes, the hanging interrupt of this partition should be ti
         <span class="n">save_interrupt_vcpu</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">frame</span><span class="p">);</span>
         <span class="n">__upcall_irq</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">user_space_handler</span><span class="p">);</span>
         <span class="n">v</span><span class="o">-&gt;</span><span class="n">arch</span><span class="p">.</span><span class="n">irqdesc</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">counter</span> <span class="o">--</span><span class="p">;</span>
-	<span class="k">return</span> <span class="n">user_space_handler</span><span class="p">;</span>  <span class="c1">//if any interrupt occours, return the point of interrupt handler;
-</span>      <span class="p">}</span>
+	<span class="k">return</span> <span class="n">user_space_handler</span><span class="p">;</span>  <span class="c1">//if any interrupt occours, return the point of interrupt handler;</span>
+      <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">}</span>
   <span class="k">return</span> <span class="n">_eip</span><span class="p">;</span>
@@ -357,9 +363,9 @@ So it’simportant to understand this function.</p>
 
 <figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">__upcall_irq</span><span class="p">(</span><span class="n">interrupt_frame</span><span class="o">*</span> <span class="n">frame</span><span class="p">,</span><span class="kt">uint8_t</span> <span class="n">vector</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">handler</span><span class="p">)</span>
 <span class="p">{</span>
-  <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eax</span> <span class="o">=</span> <span class="n">vector</span><span class="p">;</span>        <span class="c1">//put the irq number to eax
-</span>  <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eip</span> <span class="o">=</span> <span class="n">handler</span><span class="p">;</span>       <span class="c1">//Set the eip as handler
-</span><span class="p">}</span></code></pre></figure>
+  <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eax</span> <span class="o">=</span> <span class="n">vector</span><span class="p">;</span>        <span class="c1">//put the irq number to eax</span>
+  <span class="n">frame</span><span class="o">-&gt;</span><span class="n">eip</span> <span class="o">=</span> <span class="n">handler</span><span class="p">;</span>       <span class="c1">//Set the eip as handler</span>
+<span class="p">}</span></code></pre></figure>
 
 <p>Then it returns to common interrupt handler entry for Guest OS.</p>
 
@@ -409,7 +415,7 @@ As we described, after the upcall_irq, we will use the iret return to common ent
 <p>The do_iret is so like the upcall_irq. So let me introduce it briefly. <br />
 The do_iret will check the pending bit and irq_desc structure, if there is no more interrupt hanging in this CPU, then resume the interrupt context from vCPU, if not, return to handler of Guest OS again.</p>
 
-<p>If there is anything not clear, please contact me <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a></p>
+<p>If there is anything not clear, please contact me <a href="mailto:shenyouren@gmail.com">shenyouren@gmail.com</a></p>
 
         
       </section>
@@ -431,13 +437,13 @@ The do_iret will check the pending bit and irq_desc structure, if there is no mo
 <section class="page__share">
   
 
-  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-current-workflow-of-interrupt-handling/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-current-workflow-of-interrupt-handling/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://plus.google.com/share?url=http://yourenis.me/the-current-workflow-of-interrupt-handling/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+  <a href="https://plus.google.com/share?url=http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-current-workflow-of-interrupt-handling/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
       
@@ -445,11 +451,11 @@ The do_iret will check the pending bit and irq_desc structure, if there is no mo
 
   <nav class="pagination">
     
-      <a href="http://yourenis.me/the-design-of-last-year-and-the-design-for-now/" class="pagination--pager" title="The design of last year and the design for now
+      <a href="http://Yourens.github.io/the-design-of-last-year-and-the-design-for-now/" class="pagination--pager" title="The design of last year and the design for now
 ">Previous</a>
     
     
-      <a href="http://yourenis.me/my-workstation/" class="pagination--pager" title="My Workstation——论如何正确地加持生产力～
+      <a href="http://Yourens.github.io/my-workstation/" class="pagination--pager" title="My Workstation——论如何正确地加持生产力～
 ">Next</a>
     
   </nav>
@@ -485,37 +491,7 @@ The do_iret will check the pending bit and irq_desc structure, if there is no mo
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" rel="permalink">How to make a presentation for your paper as a non-native English speaker
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
-
-
-  
-	  2 minute read
-	
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">This post is all about my personal experience. Take it critically with your own perspective.
-
-</p>
-  </article>
-</div>
-        
-          
-
-
-
-
-
-<div class="grid__item">
-  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+        <a href="http://Yourens.github.io/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
 </a>
       
     </h2>
@@ -544,7 +520,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+        <a href="http://Yourens.github.io/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
 </a>
       
     </h2>
@@ -572,7 +548,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+        <a href="http://Yourens.github.io/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
 </a>
       
     </h2>
@@ -589,6 +565,43 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
 
 
 </p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://Yourens.github.io/the-design-of-last-year-and-the-design-for-now/" rel="permalink">The design of last year and the design for now
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  5 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The Interrupt handler of Philipp’s design
+
+  Structure
+The main structure of this design is meta_handler.
+
+
+struct meta_handler
+{
+  unsigned vector;
+  /* P...</p>
   </article>
 </div>
         
@@ -611,21 +624,21 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
       <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
     
     
-      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      <li><a href="https://facebook.com/Yourens"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
     
     
       <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
     
     
-    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="http://Yourens.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2021 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
       </footer>
     </div>
 
-    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+    <script src="http://Yourens.github.io/assets/js/main.min.js"></script>
 
 
 
@@ -634,7 +647,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
   
   <script type="text/javascript">
   	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  	var disqus_shortname = 'Yourensgithubio';
+  	var disqus_shortname = 'httphuaiyuschedgithubio';
 
   	/* * * DON'T EDIT BELOW THIS LINE * * */
   	(function() {

@@ -32,8 +32,8 @@
 <meta property="og:title" content="Dynamic Library Debug Record">
 
 
-  <link rel="canonical" href="http://yourenis.me/dynamic-libary-debug-record/">
-  <meta property="og:url" content="http://yourenis.me/dynamic-libary-debug-record/">
+  <link rel="canonical" href="http://Yourens.github.io/dynamic-libary-debug-record/">
+  <meta property="og:url" content="http://Yourens.github.io/dynamic-libary-debug-record/">
 
 
 
@@ -44,7 +44,7 @@
   <meta name="twitter:site" content="@shenyouren">
   <meta name="twitter:title" content="Dynamic Library Debug Record">
   <meta name="twitter:description" content="Recently, I have encountered a bug due to an upgrade of the OpenSSL library on Ubuntu 16.04. The bug is quite tricky because it’s related to how Linux load a dynamic library. So here I write This note to record it.">
-  <meta name="twitter:url" content="http://yourenis.me/dynamic-libary-debug-record/">
+  <meta name="twitter:url" content="http://Yourens.github.io/dynamic-libary-debug-record/">
 
   
     <meta name="twitter:card" content="summary">
@@ -78,7 +78,7 @@
       "@context" : "http://schema.org",
       "@type" : "Person",
       "name" : "The site of Youren Shen",
-      "url" : "http://yourenis.me",
+      "url" : "http://Yourens.github.io",
       "sameAs" : null
     }
   </script>
@@ -91,7 +91,7 @@
 <!-- end SEO -->
 
 
-<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+<link href="http://Yourens.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
 
 <!-- http://t.co/dKP3o1e -->
 <meta name="HandheldFriendly" content="True">
@@ -103,7 +103,7 @@
 </script>
 
 <!-- For all browsers -->
-<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+<link rel="stylesheet" href="http://Yourens.github.io/assets/css/main.css">
 
 <meta http-equiv="cleartype" content="on">
     <!-- start custom head snippets -->
@@ -126,16 +126,16 @@
       <nav id="site-nav" class="greedy-nav">
         <button><div class="navicon"></div></button>
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://Yourens.github.io/">Youren Shen</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/blog">Blog</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/resume">Resume</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/gallery">Gallery</a></li>
           
         </ul>
         <ul class="hidden-links hidden"></ul>
@@ -163,7 +163,7 @@
 
   <div class="author__avatar">
     
-    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    	<img src="http://Yourens.github.io/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
     
   </div>
 
@@ -250,18 +250,17 @@ The bug is quite tricky because it’s related to how Linux load a dynamic libra
 <h2 id="background">background</h2>
 <p>I’m working on Nginx on OFP when I encounter this bug. Previously I found that Nginx on OFP may loss the link connection if the network throughput is heavy. So I trying to rebuild the Nginx on OFP with debug information. However, When I running the rebuild Nginx, below message shows.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>[1]    8597 segmentation fault (core dumped)  ./objs/nginx
-</code></pre>
-</div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1]    8597 segmentation fault (core dumped)  ./objs/nginx
+</code></pre></div></div>
 
 <h1 id="symptom">Symptom</h1>
 <p><strong>A segmentation fault!</strong> <br />
 It’s impossible because I did not change any code since last successful compilation.
-What’s more, seems it crashed before the main function…  <br />
-# Debugging by GDB
-Using GDB, The crash stack list below:</p>
+What’s more, seems it crashed before the main function…</p>
+<h1 id="debugging-by-gdb">Debugging by GDB</h1>
+<p>Using GDB, The crash stack list below:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>#0  0x0000000000000000 in ?? ()
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#0  0x0000000000000000 in ?? ()
 #1  0x0000000000437ec1 in close (fd=&lt;optimized out&gt;) at src/event/modules/ngx_ofp_module.c:495
 #2  0x00007ffff73d8ead in RAND_poll () from /lib/x86_64-linux-gnu/libcrypto.so.1.0.0
 #3  0x00007ffff73d7bd5 in ?? () from /lib/x86_64-linux-gnu/libcrypto.so.1.0.0
@@ -279,13 +278,12 @@ Using GDB, The crash stack list below:</p>
 #13 0x0000000000000001 in ?? ()
 #14 0x00007fffffffeaa8 in ?? ()
 #15 0x0000000000000000 in ?? ()
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Surprisingly, Why the libcrypto invoked a function in Nginx OFP modules? Of course it should crash because the Nginx haven’t initialized. <br />
 Here is the close function in nginx_ofp.</p>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">)</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">)</span>
 <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">ODP_FD_BITS</span><span class="p">))</span> <span class="p">{</span>
     <span class="n">fd</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">ODP_FD_BITS</span><span class="p">);</span>
@@ -294,50 +292,46 @@ Here is the close function in nginx_ofp.</p>
     <span class="k">return</span> <span class="n">real_close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>As we can see, it will invoke ofp_close when this fd(file descriptor) is odp-type, or invoke the real_close function. <br />
 Step in GDB, the real_close is NULL, that’s the reason of segmentation fault.</p>
 
 <p>Here is the definition of real_close:</p>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">real_close</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>
-</code></pre>
-</div>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="n">real_close</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>
+</code></pre></div></div>
 
 <p>Because the static integer without initialization in C language is stored in the .bss section in ELF file and is all-zero, the real_close is zero in this case.</p>
 
 <h1 id="reason">Reason</h1>
 <p>Now we clearly know this problem occurs because the libcrypto should not invoke close in Nginx OFP module, but why it does is still obscure.</p>
 
-<h2 id="lddebug">LD_DEBUG</h2>
+<h2 id="ld_debug">LD_DEBUG</h2>
 <p>To get an insight of dynamic library load in Linux, especially when the program do not works, we can use LD_DEBUG.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code> LD_DEBUG = all ./objs/nginx
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> LD_DEBUG = all ./objs/nginx
 8939:     symbol=close;  lookup in file=objs/nginx [0]
 8939:     binding file /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 [0] to objs/nginx [0]: normal symbol `close' [GLIBC_2.2.5]
 8939:     symbol=close;  lookup in file=objs/nginx [0]
 8939:     binding file /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 [0] to objs/nginx [0]: normal symbol `close' [GLIBC_2.2.5]
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The newest version openssl library will invoke close function. However, due to PLT mechanism, the real address of close function can’t be determine on compilation. As a result, the libcrypto will seeking close symbol in ELF files and other libraries. That’s the reason why the libcrypto will invoke the close function in Nginx: the Nginx redefined close.  <br />
 The previous version OpenSSL do not invoke close function during library initialization. <br />
 Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find the real address of close function in Glibc and assign it to real_close.</p>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="cp">#define INIT_FUNCTION(func) \
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#define INIT_FUNCTION(func) \
         real_##func = dlsym(RTLD_NEXT, #func); \
         assert(real_##func)
 </span>  <span class="n">INIT_FUNCTION</span><span class="p">(</span><span class="n">close</span><span class="p">);</span>
 <span class="cp">#undef INIT_FUNCTION
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h1 id="fix">Fix</h1>
 <p>Understanding all the details about this bug, how to fix it is so obvious. Just determine the value of real_close, if it’s zero, assign it with the address of the close in Glibc.</p>
 
-<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">)</span>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">)</span>
 <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">ODP_FD_BITS</span><span class="p">))</span> <span class="p">{</span>
     <span class="n">fd</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">ODP_FD_BITS</span><span class="p">);</span>
@@ -350,8 +344,7 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
 </span>    <span class="k">return</span> <span class="n">real_close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 
         
@@ -374,13 +367,13 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
 <section class="page__share">
   
 
-  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/dynamic-libary-debug-record/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=http://Yourens.github.io/dynamic-libary-debug-record/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/dynamic-libary-debug-record/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://Yourens.github.io/dynamic-libary-debug-record/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://plus.google.com/share?url=http://yourenis.me/dynamic-libary-debug-record/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+  <a href="https://plus.google.com/share?url=http://Yourens.github.io/dynamic-libary-debug-record/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/dynamic-libary-debug-record/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://Yourens.github.io/dynamic-libary-debug-record/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
       
@@ -388,12 +381,11 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
 
   <nav class="pagination">
     
-      <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" class="pagination--pager" title="RTnetlink Tutorial in Chinese
+      <a href="http://Yourens.github.io/rtnetlink-tutorial-in-chinese/" class="pagination--pager" title="RTnetlink Tutorial in Chinese
 ">Previous</a>
     
     
-      <a href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" class="pagination--pager" title="How to make a presentation for your paper as a non-native English speaker
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
@@ -428,37 +420,7 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" rel="permalink">How to make a presentation for your paper as a non-native English speaker
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
-
-
-  
-	  2 minute read
-	
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">This post is all about my personal experience. Take it critically with your own perspective.
-
-</p>
-  </article>
-</div>
-        
-          
-
-
-
-
-
-<div class="grid__item">
-  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+        <a href="http://Yourens.github.io/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
 </a>
       
     </h2>
@@ -486,7 +448,7 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+        <a href="http://Yourens.github.io/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
 </a>
       
     </h2>
@@ -517,7 +479,7 @@ Furthermore, why it won’t crash after ngx_ofp_init? Because ngx_ofp_init find 
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+        <a href="http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
 </a>
       
     </h2>
@@ -543,6 +505,43 @@ struct vcpu
   </article>
 </div>
         
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://Yourens.github.io/the-design-of-last-year-and-the-design-for-now/" rel="permalink">The design of last year and the design for now
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  5 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The Interrupt handler of Philipp’s design
+
+  Structure
+The main structure of this design is meta_handler.
+
+
+struct meta_handler
+{
+  unsigned vector;
+  /* P...</p>
+  </article>
+</div>
+        
       </div>
     </div>
   
@@ -562,21 +561,21 @@ struct vcpu
       <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
     
     
-      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      <li><a href="https://facebook.com/Yourens"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
     
     
       <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
     
     
-    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="http://Yourens.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2021 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
       </footer>
     </div>
 
-    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+    <script src="http://Yourens.github.io/assets/js/main.min.js"></script>
 
 
 
@@ -585,7 +584,7 @@ struct vcpu
   
   <script type="text/javascript">
   	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  	var disqus_shortname = 'Yourensgithubio';
+  	var disqus_shortname = 'httphuaiyuschedgithubio';
 
   	/* * * DON'T EDIT BELOW THIS LINE * * */
   	(function() {

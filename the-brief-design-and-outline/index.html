@@ -32,8 +32,8 @@
 <meta property="og:title" content="The brief design and outline">
 
 
-  <link rel="canonical" href="http://yourenis.me/the-brief-design-and-outline/">
-  <meta property="og:url" content="http://yourenis.me/the-brief-design-and-outline/">
+  <link rel="canonical" href="http://Yourens.github.io/the-brief-design-and-outline/">
+  <meta property="og:url" content="http://Yourens.github.io/the-brief-design-and-outline/">
 
 
 
@@ -44,7 +44,7 @@
   <meta name="twitter:site" content="@shenyouren">
   <meta name="twitter:title" content="The brief design and outline">
   <meta name="twitter:description" content="As far as I discussed with Philipp for now, We have found two parts to do for this project.Here is the architecture of our design: ">
-  <meta name="twitter:url" content="http://yourenis.me/the-brief-design-and-outline/">
+  <meta name="twitter:url" content="http://Yourens.github.io/the-brief-design-and-outline/">
 
   
     <meta name="twitter:card" content="summary">
@@ -78,7 +78,7 @@
       "@context" : "http://schema.org",
       "@type" : "Person",
       "name" : "The site of Youren Shen",
-      "url" : "http://yourenis.me",
+      "url" : "http://Yourens.github.io",
       "sameAs" : null
     }
   </script>
@@ -91,7 +91,7 @@
 <!-- end SEO -->
 
 
-<link href="http://yourenis.me/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
+<link href="http://Yourens.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Youren Shen Feed">
 
 <!-- http://t.co/dKP3o1e -->
 <meta name="HandheldFriendly" content="True">
@@ -103,7 +103,7 @@
 </script>
 
 <!-- For all browsers -->
-<link rel="stylesheet" href="http://yourenis.me/assets/css/main.css">
+<link rel="stylesheet" href="http://Yourens.github.io/assets/css/main.css">
 
 <meta http-equiv="cleartype" content="on">
     <!-- start custom head snippets -->
@@ -126,16 +126,16 @@
       <nav id="site-nav" class="greedy-nav">
         <button><div class="navicon"></div></button>
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://yourenis.me/">Youren Shen</a></li>
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="http://Yourens.github.io/">Youren Shen</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/blog">Blog</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/blog">Blog</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/resume">Resume</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/resume">Resume</a></li>
           
             
-            <li class="masthead__menu-item"><a href="http://yourenis.me/gallery">Gallery</a></li>
+            <li class="masthead__menu-item"><a href="http://Yourens.github.io/gallery">Gallery</a></li>
           
         </ul>
         <ul class="hidden-links hidden"></ul>
@@ -163,7 +163,7 @@
 
   <div class="author__avatar">
     
-    	<img src="http://yourenis.me/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
+    	<img src="http://Yourens.github.io/images/bio-photo.jpg" class="author__avatar" alt="Youren Shen">
     
   </div>
 
@@ -246,10 +246,10 @@
       <section class="page__content" itemprop="text">
         <p>As far as I discussed with Philipp for now, We have found two parts to do for this project.
 Here is the architecture of our design: <br />
-<img src="http://yourenis.me/images/The\ architecture\ of\ paravirtualization.png" alt="The architecture of paravirtualization" /></p>
+<img src="http://Yourens.github.io/images/The\ architecture\ of\ paravirtualization.png" alt="The architecture of paravirtualization" /></p>
 
 <p>Here is Philipp’s illustration:<br />
-<img src="http://yourenis.me/images/Philipp\'s\ design.jpg" alt="Philipp's illustration" /></p>
+<img src="http://Yourens.github.io/images/Philipp\'s\ design.jpg" alt="Philipp's illustration" /></p>
 
 <p>As we can see from the picture, the RTEMS invoke the hypercall by Paravirtualization Layer to communicate with hypervisor, and also the hypervisor will notify the RTEMS through the event channel(we using the concept in XEN temporarily, however, I think we will using the mechanism supplied by POK finally.)<br />
 Also the RTEMS will be benefit from this clear and separate design in the future, since it’s easy to reuse the paravirtualization layer to transplant the RTESM on other hypervisor.</p>
@@ -275,15 +275,23 @@ See it in my next weekend post.</p>
 <p>####Clock system in paravirtualization.
 Need to be discuss.</p>
 
-<p>####Summary
-* what should we implement paravirtualization layer?(in paravirtualization layer)
+<p>####Summary</p>
+<ul>
+  <li>what should we implement paravirtualization layer?(in paravirtualization layer)
 As far as concerned now, the to-dos in paravirtualization layer includes:
-   1. Implement some kind of fake register, and corresponding hypercall with the sensitive instructions.[3]
-   2. Implement the register interrupt operation in paravirtualization layer.
-   3. Implement a callback function in RTEMS, which will be invoke when a interrupt is delivered. (Analogy with signal in UNIX). In this function, we will jump to the entry of the ture interrupt handler.
-* what should we implement to dispatch the interrupts?(in POK kernel)
-   1. adapt the meta_handler to workable with the register operation. which includes to add some flags to make the interrupt attribution and the corresponding partition.
-   2. using the event channel to delivery interrupts.</p>
+    <ol>
+      <li>Implement some kind of fake register, and corresponding hypercall with the sensitive instructions.[3]</li>
+      <li>Implement the register interrupt operation in paravirtualization layer.</li>
+      <li>Implement a callback function in RTEMS, which will be invoke when a interrupt is delivered. (Analogy with signal in UNIX). In this function, we will jump to the entry of the ture interrupt handler.</li>
+    </ol>
+  </li>
+  <li>what should we implement to dispatch the interrupts?(in POK kernel)
+    <ol>
+      <li>adapt the meta_handler to workable with the register operation. which includes to add some flags to make the interrupt attribution and the corresponding partition.</li>
+      <li>using the event channel to delivery interrupts.</li>
+    </ol>
+  </li>
+</ul>
 
 <p>####Brief Outline from now.</p>
 
@@ -311,7 +319,7 @@ Finish all missing documentation.
 Write the wiki page.
 Write a user manual to introduce how to use the API proived by paravirtualization layer and how to transplant the virtualization layer on another kind of operating system.</p>
 
-<p>If you got any problem or I have any misunderstanding, please contact me by email <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#115;&#104;&#101;&#110;&#121;&#111;&#117;&#114;&#101;&#110;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a></p>
+<p>If you got any problem or I have any misunderstanding, please contact me by email <a href="mailto:shenyouren@gmail.com">shenyouren@gmail.com</a></p>
 
 <p>####Reference:
 [1]. <a href="https://rtems.org/onlinedocs/doc-current/share/rtems/html/cpu_supplement/Intel_002fAMD-x86-Specific-Information-Vectoring-of-Interrupt-Handler.html">https://rtems.org/onlinedocs/doc-current/share/rtems/html/cpu_supplement/Intel_002fAMD-x86-Specific-Information-Vectoring-of-Interrupt-Handler.html</a>. <br />
@@ -338,13 +346,13 @@ Write a user manual to introduce how to use the API proived by paravirtualizatio
 <section class="page__share">
   
 
-  <a href="https://twitter.com/intent/tweet?text=http://yourenis.me/the-brief-design-and-outline/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?text=http://Yourens.github.io/the-brief-design-and-outline/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http://yourenis.me/the-brief-design-and-outline/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http://Yourens.github.io/the-brief-design-and-outline/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://plus.google.com/share?url=http://yourenis.me/the-brief-design-and-outline/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+  <a href="https://plus.google.com/share?url=http://Yourens.github.io/the-brief-design-and-outline/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://yourenis.me/the-brief-design-and-outline/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http://Yourens.github.io/the-brief-design-and-outline/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
       
@@ -352,11 +360,11 @@ Write a user manual to introduce how to use the API proived by paravirtualizatio
 
   <nav class="pagination">
     
-      <a href="http://yourenis.me/the-syscall-system-in-pok/" class="pagination--pager" title="The syscall system in POK and interrupt handler in POK
+      <a href="http://Yourens.github.io/the-syscall-system-in-pok/" class="pagination--pager" title="The syscall system in POK and interrupt handler in POK
 ">Previous</a>
     
     
-      <a href="http://yourenis.me/an-overview-about-event-channel-in-xen/" class="pagination--pager" title="An overview about Event Channel in XEN
+      <a href="http://Yourens.github.io/an-overview-about-event-channel-in-xen/" class="pagination--pager" title="An overview about Event Channel in XEN
 ">Next</a>
     
   </nav>
@@ -392,37 +400,7 @@ Write a user manual to introduce how to use the API proived by paravirtualizatio
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/how-to-make-a-presentation-for-your-paper-as-a-non-native-english-speaker/" rel="permalink">How to make a presentation for your paper as a non-native English speaker
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
-
-
-  
-	  2 minute read
-	
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">This post is all about my personal experience. Take it critically with your own perspective.
-
-</p>
-  </article>
-</div>
-        
-          
-
-
-
-
-
-<div class="grid__item">
-  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="http://yourenis.me/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
+        <a href="http://Yourens.github.io/dynamic-libary-debug-record/" rel="permalink">Dynamic Library Debug Record
 </a>
       
     </h2>
@@ -451,7 +429,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
+        <a href="http://Yourens.github.io/rtnetlink-tutorial-in-chinese/" rel="permalink">RTnetlink Tutorial in Chinese
 </a>
       
     </h2>
@@ -479,7 +457,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="http://yourenis.me/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
+        <a href="http://Yourens.github.io/my-workstation/" rel="permalink">My Workstation——论如何正确地加持生产力～
 </a>
       
     </h2>
@@ -496,6 +474,43 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
 
 
 </p>
+  </article>
+</div>
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="http://Yourens.github.io/the-current-workflow-of-interrupt-handling/" rel="permalink">The current workflow of interrupt handling
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  4 minute read
+	
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">##The workflow of current interrupt handling
+
+###The structure 
+As usual, let’s start with key structure:
+
+struct vcpu
+{ 
+......
+    /*
+    * This bit will b...</p>
   </article>
 </div>
         
@@ -518,21 +533,21 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
       <li><a href="https://twitter.com/shenyouren"><i class="fa fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
     
     
-      <li><a href="https://facebook.com/Yourenisme"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+      <li><a href="https://facebook.com/Yourens"><i class="fa fa-fw fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
     
     
       <li><a href="http://github.com/Yourens"><i class="fa fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
     
     
-    <li><a href="http://yourenis.me/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="http://Yourens.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2018 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2021 The site of Youren Shen. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
       </footer>
     </div>
 
-    <script src="http://yourenis.me/assets/js/main.min.js"></script>
+    <script src="http://Yourens.github.io/assets/js/main.min.js"></script>
 
 
 
@@ -541,7 +556,7 @@ The bug is quite tricky because it’s related to how Linux load ...</p>
   
   <script type="text/javascript">
   	/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  	var disqus_shortname = 'Yourensgithubio';
+  	var disqus_shortname = 'httphuaiyuschedgithubio';
 
   	/* * * DON'T EDIT BELOW THIS LINE * * */
   	(function() {
